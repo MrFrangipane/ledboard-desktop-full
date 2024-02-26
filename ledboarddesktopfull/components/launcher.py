@@ -32,9 +32,6 @@ class Launcher(QObject):
 
         dock_logger_to_main_window(self._main_window)
 
-        self._central_widget = CentralWidget()
-        self._main_window.setCentralWidget(self._central_widget)
-
         self._main_window.resize(950, 600)
 
         logging.basicConfig(level=logging.INFO)

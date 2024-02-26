@@ -1,3 +1,4 @@
+colour-science
 imageio
 imageio-ffmpeg
 opencv-python
