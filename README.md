@@ -16,3 +16,11 @@ Related projects
 The application icon was made by [Payungkead](https://www.flaticon.com/authors/payungkead) and found on [Flat Icon](https://www.flaticon.com)
 
 This project uses [PySide6 helpers](https://github.com/MrFrangipane/pyside6-helpers) which icons were made by [Freepik](https://www.freepik.com/) and found on [Flat Icon](https://www.flaticon.com)
+
+
+### Notes Blitz
+
+Totem current (5V)
+- top left quarter : 3.55 A
+- bottom left quarter : 4.73 A
+- left : 8.10 A (0.18 A less than sum)

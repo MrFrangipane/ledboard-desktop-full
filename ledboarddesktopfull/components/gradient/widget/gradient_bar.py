@@ -34,6 +34,8 @@ class GradientBarWidget(QWidget):
 
         self._update_handles_rects()
 
+        self.setMinimumHeight(40)
+
     def _update_handles_rects(self):
         self._handles_rects = list()
         for handle in self.handles:

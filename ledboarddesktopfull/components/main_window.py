@@ -5,8 +5,7 @@ from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtWidgets import QMainWindow, QLabel
 
 from ledboarddesktopfull.core.components import Components
-from ledboarddesktopfull.components.gradient.widget.gradient_bar import GradientBarWidget
-
+from ledboarddesktopfull.components.central_widget import CentralWidget
 
 class MainWindow(QMainWindow):
     shown = Signal()
@@ -25,7 +24,7 @@ class MainWindow(QMainWindow):
         logo_label.setPixmap(logo_pixmap)
         self.statusBar().addPermanentWidget(logo_label)
 
-        self.central = GradientBarWidget()
+        self.central = CentralWidget()
         self.setCentralWidget(self.central)
 
     def showEvent(self, event):
