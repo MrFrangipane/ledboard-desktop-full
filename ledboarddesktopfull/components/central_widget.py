@@ -6,6 +6,8 @@ from pyside6helpers.tab import make_tabs
 from ledboarddesktopfull.components.board_configurator.widget import BoardConfiguratorWidget
 from ledboarddesktopfull.components.board_selector.widget import BoardSelectorWidget
 from ledboarddesktopfull.components.simple_illumination.widget import SimpleIlluminationWidget
+from ledboarddesktopfull.components.scan.widgets.main_widget import ScanMainWidget
+from ledboarddesktopfull.core.components import Components
 
 
 class CentralWidget(QWidget):
@@ -16,17 +18,23 @@ class CentralWidget(QWidget):
         self.board_selector = BoardSelectorWidget()
         self.illumination = SimpleIlluminationWidget()
 
+        self.scan = ScanMainWidget()
+
         self.board_selector.boardSelected.connect(self.board_configurator.refresh)
         self.board_selector.boardSelected.connect(self.illumination.refresh)
 
         layout = QGridLayout(self)
         layout.addWidget(make_group("Board selection",[self.board_selector]))
-        layout.addWidget(make_group("Board configuration", [self.board_configurator], fixed_width=300))
+        layout.addWidget(make_group(
+            "Board configuration",
+            [self.board_configurator],
+            fixed_width=Components().configuration.side_bar_width
+        ))
         layout.addWidget(make_group("Simple illumination",[self.illumination]))
         layout.addWidget(QWidget())
 
         layout.addWidget(make_tabs({
-            "Scan": QWidget(),
+            "Scan": self.scan,
             "Layout": QWidget(),
             "Palettes": QWidget()
         }), 0, 1, 4, 1)
