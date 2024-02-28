@@ -42,3 +42,8 @@ class SimpleIlluminationWidget(QWidget):
             b=self.slider_b.value(),
             w=self.slider_w.value()
         ))
+
+    def refresh(self):
+        total_pixels = Components().board_api.get_configuration().pixel_per_transmitter * 8
+        self.slider_start.setRange(0, total_pixels)
+        self.slider_end.setRange(0, total_pixels)

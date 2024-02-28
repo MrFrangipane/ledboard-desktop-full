@@ -13,11 +13,11 @@ class CentralWidget(QWidget):
         super().__init__(parent)
 
         self.board_configurator = BoardConfiguratorWidget()
-
         self.board_selector = BoardSelectorWidget()
-        self.board_selector.boardSelected.connect(self.board_configurator.refresh)
-
         self.illumination = SimpleIlluminationWidget()
+
+        self.board_selector.boardSelected.connect(self.board_configurator.refresh)
+        self.board_selector.boardSelected.connect(self.illumination.refresh)
 
         layout = QGridLayout(self)
         layout.addWidget(make_group("Board selection",[self.board_selector]))
