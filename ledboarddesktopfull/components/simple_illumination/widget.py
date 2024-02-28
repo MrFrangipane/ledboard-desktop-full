@@ -18,6 +18,7 @@ class SimpleIlluminationWidget(QWidget):
         self.slider_w = Slider(minimum=0, maximum=255, on_value_changed=self._apply)
 
         layout = QGridLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         layout.addWidget(QLabel("LED start"), 0, 0)
         layout.addWidget(self.slider_start, 0, 1)

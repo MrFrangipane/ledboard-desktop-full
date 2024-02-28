@@ -1,10 +1,9 @@
 import logging
 import os.path
 
-from PySide6.QtCore import QObject, Qt
-from PySide6.QtWidgets import QApplication, QDockWidget
+from PySide6.QtCore import QObject
+from PySide6.QtWidgets import QApplication
 
-# from pyside6helpers.css.editor import CSSEditor
 from pyside6helpers import css
 from pyside6helpers.logger import dock_logger_to_main_window
 
@@ -29,14 +28,16 @@ class Launcher(QObject):
         css.load_onto(self._application)
 
         self._main_window = MainWindow()
-
+        self._central_widget = CentralWidget()
+        self._main_window.setCentralWidget(self._central_widget)
         dock_logger_to_main_window(self._main_window)
-
         self._main_window.resize(950, 600)
 
         logging.basicConfig(level=logging.INFO)
 
-        # self.css_editor = CSSEditor("Frangitron")
+        if False:
+            from pyside6helpers.css.editor import CSSEditor
+            self.css_editor = CSSEditor("Frangitron", QApplication.instance())
 
     def exec(self) -> int:
         self._main_window.show()

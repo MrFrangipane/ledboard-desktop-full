@@ -1,6 +1,9 @@
 from ipaddress import IPv4Address
 
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QSpinBox, QComboBox, QPushButton
+from pyside6helpers import icons
+
+from ledboardclientfull import PixelType
 
 from ledboarddesktopfull.core.components import Components
 
@@ -24,12 +27,16 @@ class BoardConfiguratorWidget(QWidget):
         self.combo_pixel_type.addItems(["GRBW", "GRB"])
 
         self.button_apply = QPushButton("Apply")
+        self.button_apply.setIcon(icons.play_button())
         self.button_apply.clicked.connect(self.apply)
 
         self.button_save_and_reboot = QPushButton("Save and reboot")
+        self.button_save_and_reboot.setIcon(icons.diskette())
         self.button_save_and_reboot.clicked.connect(self.save_and_reboot)
 
         layout = QGridLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
         layout.addWidget(QLabel("Name"), 0, 0)
         layout.addWidget(self.line_name, 0, 1)
         layout.addWidget(QLabel("IP Address"), 1, 0)
@@ -46,12 +53,11 @@ class BoardConfiguratorWidget(QWidget):
 
     def refresh(self):
         configuration = Components().board_api.get_configuration()
-        print(configuration)
         self.line_name.setText(configuration.name.strip())
         self.line_ip_address.setText(str(configuration.ip_address))
         self.spin_universe.setValue(configuration.universe)
         self.spin_pixels_per_transmitter.setValue(configuration.pixel_per_transmitter)
-        self.combo_pixel_type.setCurrentIndex(int(configuration.pixel_type))
+        self.combo_pixel_type.setCurrentIndex(configuration.pixel_type.value)
 
     def save_and_reboot(self):
         self._send(save=True)
@@ -66,7 +72,7 @@ class BoardConfiguratorWidget(QWidget):
         configuration.ip_address = IPv4Address(self.line_ip_address.text())
         configuration.universe = self.spin_universe.value()
         configuration.pixel_per_transmitter = self.spin_pixels_per_transmitter.value()
-        configuration.pixel_type = self.combo_pixel_type.currentIndex()
+        configuration.pixel_type = PixelType(self.combo_pixel_type.currentIndex())
         configuration.do_save_and_reboot = save
 
         Components().board_api.set_configuration(configuration)
