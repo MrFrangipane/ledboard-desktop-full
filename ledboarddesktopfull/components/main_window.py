@@ -1,14 +1,13 @@
 import os.path
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import QTimer
 from PySide6.QtGui import QPixmap, QIcon
-from PySide6.QtWidgets import QMainWindow, QLabel
+from PySide6.QtWidgets import QLabel, QMainWindow
 
 from ledboarddesktopfull.core.components import Components
 
 
 class MainWindow(QMainWindow):
-    shown = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -24,6 +23,15 @@ class MainWindow(QMainWindow):
         logo_label.setPixmap(logo_pixmap)
         self.statusBar().addPermanentWidget(logo_label)
 
+        # FIXME could be better
+        self.timer_callbacks = QTimer()
+        self.timer_callbacks.timeout.connect(self.run_callbacks)
+
     def showEvent(self, event):
-        self.shown.emit()
-        event.accept()
+        QMainWindow.showEvent(self, event)
+        self.timer_callbacks.start(0)
+
+    def run_callbacks(self):
+        self.timer_callbacks.stop()
+        for callback in Components().configuration.on_main_window_shown_callbacks:
+            callback()

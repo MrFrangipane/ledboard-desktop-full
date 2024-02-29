@@ -28,6 +28,8 @@ class BoardSelectorWidget(QWidget):
         layout.addWidget(self.combo)
         layout.addWidget(self.button_reload, 0, 1)
 
+        Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
+
     def _reload_board_list(self):
         self._boards = list(Components().board_api.available_boards())
         combo.update(self.combo, [f"{board_settings.name} ({port_name})" for port_name, board_settings in self._boards])
@@ -36,3 +38,7 @@ class BoardSelectorWidget(QWidget):
         port_name = self._boards[self.combo.currentIndex()][0]
         Components().board_api.set_serial_port(port_name)
         self.boardSelected.emit()
+
+    def _load_settings(self):
+        self._reload_board_list()
+        self.combo.setCurrentIndex(Components().configuration.board_index)
