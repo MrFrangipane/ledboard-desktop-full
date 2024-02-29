@@ -2,13 +2,13 @@ import cv2
 from PySide6.QtGui import QPixmap, QImage
 
 from ledboarddesktopfull.components.scan.image_processing.video_capture import VideoCapture
-from ledboarddesktopfull.components.scan.scan_settings import ScanSettings
+from ledboarddesktopfull.components.scan.image_processing.settings import ScanImageProcessingSettings
 
 
-class Scan:
+class ScanImageProcessor:
     def __init__(self):
         self._video_capture = VideoCapture()
-        self.settings = ScanSettings()
+        self.settings = ScanImageProcessingSettings()
 
     def get_capture_devices_names(self) -> list[str]:
         return self._video_capture.get_devices_names()
@@ -16,7 +16,7 @@ class Scan:
     def set_capture_device(self, device_index: int):
         self._video_capture.open(device_index)
 
-    def set_scan_settings(self, settings: ScanSettings):
+    def set_scan_settings(self, settings: ScanImageProcessingSettings):
         self.settings = settings
 
     def viewport_pixmap(self):

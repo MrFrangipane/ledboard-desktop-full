@@ -61,18 +61,24 @@ class ScanOptions(QWidget):
 
         self.setFixedWidth(Components().configuration.side_bar_width)
 
+        Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
+
     def refresh_video_inputs(self):
-        combo.update(self.combo_video_inputs, Components().scan.get_capture_devices_names())
+        combo.update(self.combo_video_inputs, Components().scan_image_processor.get_capture_devices_names())
 
     @staticmethod
     def video_input_changed(index):
-        Components().scan.set_capture_device(index)
+        Components().scan_image_processor.set_capture_device(index)
 
     def is_live_blur_changed(self):
-        Components().scan.settings.viewport_blur = self.checkbox_viewport_blur.isChecked()
+        Components().scan_image_processor.settings.viewport_blur = self.checkbox_viewport_blur.isChecked()
 
     def blur_radius_changed(self):
-        Components().scan.settings.blur_radius = self.slider_blur_radius.value()
+        Components().scan_image_processor.settings.blur_radius = self.slider_blur_radius.value()
 
     def brightest_pixel_changed(self):
-        Components().scan.settings.viewport_brightest_pixel = self.checkbox_viewport_brightest_pixel.isChecked()
+        Components().scan_image_processor.settings.viewport_brightest_pixel = self.checkbox_viewport_brightest_pixel.isChecked()
+
+    def _load_settings(self):
+        self.refresh_video_inputs()
+        self.combo_video_inputs.setCurrentIndex(Components().configuration.video_capture_index)
