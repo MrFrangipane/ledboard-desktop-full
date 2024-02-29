@@ -1,51 +1,49 @@
 from PySide6.QtCore import Qt, QRectF
 
-from ledboarddesktopfull.python_extensions.abstract_graphicview_interactor import AbstractGraphicsViewInteractor
+from ledboarddesktopfull.python_extensions.abstract_graphicsview_interactor import AbstractGraphicsViewInteractor
 
 
 class Navigator(AbstractGraphicsViewInteractor):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, view):
+        super().__init__(view)
         self.is_enabled = True
 
+        self._is_active = False
         self._zoom = 0
         self._drag_anchor = 0, 0
-        self._frustum = QRectF(0, 0, 0, 0)
+        self._frustum = QRectF(0, 0, self._view.size().width(), self._view.size().height())
+        self._update_frustum()
 
-    def _update_frustum(self, view):
-        view.setSceneRect(self._frustum)
-        view.fitInView(self._frustum, Qt.KeepAspectRatio)
+    def _update_frustum(self):
+        self._view.setSceneRect(self._frustum)
+        self._view.fitInView(self._frustum, Qt.KeepAspectRatio)
 
-    def wheelEvent(self, view, event):
-        if event.angleDelta().y() > 0:
-            factor = 1.25
-        else:
-            factor = 0.8
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Control:
+            self._is_active = True
 
-        position = view.mapToScene(event.position().toPoint())
-        w = self._frustum.width() / factor
-        h = self._frustum.height() / factor
+    def keyReleaseEvent(self, event):
+        if event.key() == Qt.Key_Control:
+            self._is_active = False
 
-        self._frustum = QRectF(
-            position.x() - (position.x() - self._frustum.left()) / factor,
-            position.y() - (position.y() - self._frustum.top()) / factor,
-            w, h
-        )
-        self._update_frustum(view)
+    def mouseMoveEvent(self, event):
+        if not self._is_active:
+            return
 
-    def mousePressEvent(self, view, event):
-        self._drag_anchor = view.mapToScene(event.position().toPoint())
-
-    def mouseMoveEvent(self, view, event):
-        position = view.mapToScene(event.position().toPoint())
+        position = self._view.mapToScene(event.position().toPoint())
         delta = self._drag_anchor - position
 
         self._frustum.adjust(delta.x(), delta.y(), delta.x(), delta.y())
-        self._update_frustum(view)
+        self._update_frustum()
 
-    def resizeEvent(self, view, event):
-        self._frustum = QRectF(0, 0, view.size().width(), view.size().height())
-        self._update_frustum(view)
+    def mousePressEvent(self, event):
+        if not self._is_active:
+            return
+
+        self._drag_anchor = self._view.mapToScene(event.position().toPoint())
+
+    def resizeEvent(self, event):
+        # TODO
         """
         w, h = self.size().width(), self.size().height()
         if 0 in [w, h]:
@@ -54,4 +52,24 @@ class Navigator(AbstractGraphicsViewInteractor):
         self._set_viewer_zoom(delta)
         self._last_size = self.size()
         super(NodeViewer, self).resizeEvent(event)
-    """
+        """
+
+    def wheelEvent(self, event):
+        if not self._is_active:
+            return
+
+        if event.angleDelta().y() > 0:
+            factor = 1.25
+        else:
+            factor = 0.8
+
+        position = self._view.mapToScene(event.position().toPoint())
+        w = self._frustum.width() / factor
+        h = self._frustum.height() / factor
+
+        self._frustum = QRectF(
+            position.x() - (position.x() - self._frustum.left()) / factor,
+            position.y() - (position.y() - self._frustum.top()) / factor,
+            w, h
+        )
+        self._update_frustum()
