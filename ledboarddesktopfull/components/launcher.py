@@ -10,6 +10,7 @@ from pyside6helpers.logger import dock_logger_to_main_window
 from ledboarddesktopfull.core.components import Components
 from ledboarddesktopfull.components.central_widget import CentralWidget
 from ledboarddesktopfull.components.main_window import MainWindow
+from ledboarddesktopfull.components.scan.scan import Scan
 
 
 _logger = logging.getLogger(__name__)
@@ -38,6 +39,8 @@ class Launcher(QObject):
         if False:
             from pyside6helpers.css.editor import CSSEditor
             self.css_editor = CSSEditor("Frangitron", QApplication.instance())
+
+        Components().scan = Scan()
 
     def exec(self) -> int:
         self._main_window.showMaximized()

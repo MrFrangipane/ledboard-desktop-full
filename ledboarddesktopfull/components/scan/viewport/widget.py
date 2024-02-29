@@ -55,7 +55,7 @@ class ScanViewport(QWidget):
         self._viewport_timer.start(int(1000 / Components().configuration.scan_viewport_framerate))
 
     def _update_viewport(self):
-        self.image_plane.setPixmap(Components().scan_image_processor.viewport_pixmap())
+        self.image_plane.setPixmap(Components().scan.image_processor.viewport_pixmap())
 
     def _mask_editing_changed(self, is_active):
         self.viewport_mask_drawer.is_active = is_active
