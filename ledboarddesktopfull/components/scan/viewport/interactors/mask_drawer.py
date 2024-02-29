@@ -24,6 +24,10 @@ class MaskDrawer(AbstractGraphicsViewInteractor):
         self._polygon_item = self._view.scene().addPolygon(self._polygon, pen, brush)
         self.reset()
 
+    @property
+    def mask_item(self):
+        return self._polygon_item
+
     def reset(self):
         self._polygon = QPolygon()
         self._polygon_item.setPolygon(self._polygon)

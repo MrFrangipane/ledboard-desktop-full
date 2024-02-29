@@ -1,12 +1,15 @@
 from PySide6.QtCore import Qt, QRectF
 
 from ledboarddesktopfull.python_extensions.abstract_graphicsview_interactor import AbstractGraphicsViewInteractor
+from ledboarddesktopfull.python_extensions.graphics_image_plane import GraphicsImagePlane
 
 
 class Navigator(AbstractGraphicsViewInteractor):
-    def __init__(self, view):
+    def __init__(self, view, image_plane: GraphicsImagePlane):
         super().__init__(view)
         self.is_enabled = True
+
+        self._image_plane = image_plane
 
         self._is_active = False
         self._zoom = 0
@@ -18,6 +21,10 @@ class Navigator(AbstractGraphicsViewInteractor):
         self._view.setSceneRect(self._frustum)
         self._view.fitInView(self._frustum, Qt.KeepAspectRatio)
 
+    def fit(self):
+        self._frustum = self._image_plane.boundingRect()
+        self._update_frustum()
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Control:
             self._is_active = True
@@ -27,7 +34,7 @@ class Navigator(AbstractGraphicsViewInteractor):
             self._is_active = False
 
     def mouseMoveEvent(self, event):
-        if not self._is_active:
+        if not self._is_active or not event.buttons() == Qt.MouseButton.LeftButton:
             return
 
         position = self._view.mapToScene(event.position().toPoint())

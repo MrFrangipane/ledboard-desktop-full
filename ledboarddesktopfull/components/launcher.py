@@ -40,5 +40,5 @@ class Launcher(QObject):
             self.css_editor = CSSEditor("Frangitron", QApplication.instance())
 
     def exec(self) -> int:
-        self._main_window.show()
+        self._main_window.showMaximized()
         return self._application.exec()

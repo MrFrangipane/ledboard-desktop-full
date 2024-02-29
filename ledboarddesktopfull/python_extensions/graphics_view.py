@@ -17,6 +17,7 @@ class GraphicsView(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setFrameShape(QFrame.Shape.NoFrame)
+        self.setMouseTracking(True)
 
         self.interactors: list[AbstractGraphicsViewInteractor] = list()
 
@@ -49,6 +50,8 @@ class GraphicsView(QGraphicsView):
         QGraphicsView.mousePressEvent(self, event)
 
     def mouseMoveEvent(self, event):
+        self.setFocus()
+
         for interactor in self.interactors:
             if interactor.is_enabled:
                 interactor.mouseMoveEvent(event)
