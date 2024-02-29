@@ -1,5 +1,7 @@
+import numpy as np
+
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPolygon, QPen, QBrush, QColor
+from PySide6.QtGui import QPolygonF, QPen, QBrush, QColor
 
 from ledboarddesktopfull.python_extensions.abstract_graphicsview_interactor import AbstractGraphicsViewInteractor
 
@@ -20,7 +22,7 @@ class MaskDrawer(AbstractGraphicsViewInteractor):
 
         brush = QBrush(QColor(255, 0, 128, 64))
 
-        self._polygon = QPolygon()
+        self._polygon = QPolygonF()
         self._polygon_item = self._view.scene().addPolygon(self._polygon, pen, brush)
         self.reset()
 
@@ -28,8 +30,16 @@ class MaskDrawer(AbstractGraphicsViewInteractor):
     def mask_item(self):
         return self._polygon_item
 
+    @property
+    def mask_geometry(self):  # fixme use a dataclass
+        points = np.array([
+            [int(self._polygon.at(i).x()), int(self._polygon.at(i).y())]
+            for i in range(self._polygon.count())
+        ])
+        return points
+
     def reset(self):
-        self._polygon = QPolygon()
+        self._polygon = QPolygonF()
         self._polygon_item.setPolygon(self._polygon)
 
     def keyPressEvent(self, event):
@@ -45,9 +55,8 @@ class MaskDrawer(AbstractGraphicsViewInteractor):
             return
 
         position = self._view.mapToScene(event.position().toPoint())
-        polygon = self._polygon_item.polygon()
-        polygon.append(position)
-        self._polygon_item.setPolygon(polygon)
+        self._polygon.append(position)
+        self._polygon_item.setPolygon(self._polygon)
 
     def mouseMoveEvent(self, event):
         return

@@ -59,9 +59,12 @@ class ScanViewport(QWidget):
 
     def _mask_editing_changed(self, is_active):
         self.viewport_mask_drawer.is_active = is_active
+        if not is_active:
+            Components().scan.image_processor.set_mask(self.viewport_mask_drawer.mask_geometry)
 
     def _mask_reset(self):
         self.viewport_mask_drawer.reset()
+        Components().scan.image_processor.reset_mask()
 
     def _mask_toggle_visible(self, is_visible):
         self.viewport_mask_drawer.mask_item.setVisible(is_visible)
