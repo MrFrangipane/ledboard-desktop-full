@@ -1,9 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
 
 from pyside6helpers.slider import Slider
-from ledboardclientfull import Illumination
-
-from ledboarddesktopfull.core.components import Components
+from ledboardclientfull import BoardIllumination, board, illumination
 
 
 class SimpleIlluminationWidget(QWidget):
@@ -34,7 +32,7 @@ class SimpleIlluminationWidget(QWidget):
         layout.addWidget(self.slider_w, 5, 1)
 
     def _apply(self):
-        Components().board_api.illuminate(Illumination(
+        illumination.illuminate(BoardIllumination(
             led_start=self.slider_start.value(),
             led_end=self.slider_end.value(),
             r=self.slider_r.value(),
@@ -44,6 +42,6 @@ class SimpleIlluminationWidget(QWidget):
         ))
 
     def refresh(self):
-        total_pixels = Components().board_api.get_configuration().pixel_per_transmitter * 8
+        total_pixels = board.get_configuration().pixel_per_transmitter * 8
         self.slider_start.setRange(0, total_pixels)
         self.slider_end.setRange(0, total_pixels)

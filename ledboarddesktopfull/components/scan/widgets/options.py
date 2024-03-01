@@ -7,6 +7,8 @@ from pyside6helpers.hourglass import hourglass_wrapper
 from pyside6helpers import combo
 from pyside6helpers.slider import Slider
 
+from ledboardclientfull import scan
+
 from ledboarddesktopfull.core.components import Components
 
 
@@ -61,24 +63,29 @@ class ScanOptions(QWidget):
 
         self.setFixedWidth(Components().configuration.side_bar_width)
 
-        Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
+        # Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
 
     def refresh_video_inputs(self):
-        combo.update(self.combo_video_inputs, Components().scan.image_processor.get_capture_devices_names())
+        combo.update(self.combo_video_inputs, scan.get_capture_devices_names())
 
     @staticmethod
     def video_input_changed(index):
-        Components().scan.image_processor.set_capture_device(index)
+        scan.set_capture_device(index)
 
     def is_live_blur_changed(self):
-        Components().scan.image_processor.settings.viewport_blur = self.checkbox_viewport_blur.isChecked()
+        settings = scan.get_settings()
+        settings.viewport_blur = self.checkbox_viewport_blur.isChecked()
+        scan.set_settings(settings)
 
     def blur_radius_changed(self):
-        Components().scan.image_processor.settings.blur_radius = self.slider_blur_radius.value()
+        settings = scan.get_settings()
+        settings.blur_radius = self.slider_blur_radius.value()
+        scan.set_settings(settings)
 
     def brightest_pixel_changed(self):
-        Components().scan.image_processor.settings.viewport_brightest_pixel = self.checkbox_viewport_brightest_pixel.isChecked()
+        settings = scan.get_settings()
+        settings.viewport_brightest_pixel = self.checkbox_viewport_brightest_pixel.isChecked()
+        scan.set_settings(settings)
 
     def _load_settings(self):
         self.refresh_video_inputs()
-        self.combo_video_inputs.setCurrentIndex(Components().configuration.video_capture_index)

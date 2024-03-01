@@ -3,9 +3,7 @@ from ipaddress import IPv4Address
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QSpinBox, QComboBox, QPushButton
 from pyside6helpers import icons
 
-from ledboardclientfull import PixelType
-
-from ledboarddesktopfull.core.components import Components
+from ledboardclientfull import PixelType, board
 
 
 class BoardConfiguratorWidget(QWidget):
@@ -63,7 +61,7 @@ class BoardConfiguratorWidget(QWidget):
         layout.addWidget(self.button_save_and_reboot, 9, 0, 1, 2)
 
     def refresh(self):
-        configuration = Components().board_api.get_configuration()
+        configuration = board.get_configuration()
 
         self.line_name.setText(configuration.name.strip())
         self.line_ip_address.setText(str(configuration.ip_address))
@@ -82,7 +80,7 @@ class BoardConfiguratorWidget(QWidget):
         self._send(save=False)
 
     def _send(self, save):
-        configuration = Components().board_api.get_configuration()
+        configuration = board.get_configuration()
 
         configuration.name = self.line_name.text()
         configuration.ip_address = IPv4Address(self.line_ip_address.text())
@@ -91,4 +89,4 @@ class BoardConfiguratorWidget(QWidget):
         configuration.pixel_type = PixelType(self.combo_pixel_type.currentIndex())
         configuration.do_save_and_reboot = save
 
-        Components().board_api.set_configuration(configuration)
+        board.set_configuration(configuration)

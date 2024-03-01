@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 
-from ledboardclientfull import LEDBoardClientAPI
-
-# from ledboarddesktopfull.components.scan.scan import Scan
+# from ledboarddesktopfull.components.project_persistence_ui import ProjectPersistenceUi
 from ledboarddesktopfull.core.configuration import Configuration
 from ledboarddesktopfull.python_extensions.singleton_metaclass import SingletonMetaclass
 
@@ -10,5 +8,4 @@ from ledboarddesktopfull.python_extensions.singleton_metaclass import SingletonM
 @dataclass
 class Components(metaclass=SingletonMetaclass):
     configuration = Configuration()
-    board_api = LEDBoardClientAPI()
-    scan = None  # FIXME make an AbstractScan !!
+    project_persistence_ui = None  # FIXME use an AbstractProjectPersistenceUi

@@ -1,7 +1,9 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget, QComboBox, QGridLayout, QPushButton
+
 from pyside6helpers import combo, icons, hourglass
-from ledboardclientfull import BoardConfiguration
+
+from ledboardclientfull import BoardConfiguration, board
 
 from ledboarddesktopfull.core.components import Components
 
@@ -28,17 +30,16 @@ class BoardSelectorWidget(QWidget):
         layout.addWidget(self.combo)
         layout.addWidget(self.button_reload, 0, 1)
 
-        Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
+        # Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
 
     def _reload_board_list(self):
-        self._boards = list(Components().board_api.available_boards())
+        self._boards = list(board.available_boards())
         combo.update(self.combo, [f"{board_settings.name} ({port_name})" for port_name, board_settings in self._boards])
 
     def board_selected(self, index):
         port_name = self._boards[self.combo.currentIndex()][0]
-        Components().board_api.set_serial_port(port_name)
+        board.set_serial_port(port_name)
         self.boardSelected.emit()
 
     def _load_settings(self):
         self._reload_board_list()
-        self.combo.setCurrentIndex(Components().configuration.board_index)

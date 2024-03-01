@@ -11,9 +11,5 @@ class Configuration:
     side_bar_width: int = 260
 
     #
-    # Boot
+    # Bootstrap
     on_main_window_shown_callbacks: list[Callable] = field(default_factory=list)
-
-    # FIXME: save / load from persistence
-    board_index: int = 0
-    video_capture_index: int = 0
