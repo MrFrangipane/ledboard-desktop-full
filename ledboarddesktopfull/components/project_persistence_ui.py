@@ -1,10 +1,12 @@
+import os.path
+
 from PySide6.QtCore import QObject
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenuBar, QFileDialog
 
 from pyside6helpers import icons
 
-from ledboardclientfull import project
+from ledboardclientfull import project as project_api
 
 from ledboarddesktopfull.core.components import Components
 
@@ -14,7 +16,7 @@ class ProjectPersistenceUi(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.action_new = QAction(icons.file(), "&New project")
-        self.action_new.triggered.connect(project.new)
+        self.action_new.triggered.connect(project_api.new)
 
         self.action_load = QAction(icons.folder(), "&Load project...")
         self.action_load.triggered.connect(self.load)
@@ -32,10 +34,24 @@ class ProjectPersistenceUi(QObject):
         dialog = QFileDialog()
         filepath, _ = dialog.getOpenFileName()
         if filepath:
-            project.load(filepath)
+            project_api.load(filepath)
+            self._update_widgets()
 
     def save(self):
         dialog = QFileDialog()
         filepath, _ = dialog.getSaveFileName()
         if filepath:
-            project.save(filepath)
+            project_api.save(filepath)
+
+    @staticmethod
+    def save_as_working():
+        project_api.save(os.path.expanduser("~/ledboard-working-project.json"))
+
+    def load_from_working(self):
+        project_api.load(os.path.expanduser("~/ledboard-working-project.json"))
+        self._update_widgets()
+
+    def _update_widgets(self):
+        # Components().board_selector.set_selected_board(project.board_port_name)
+        # FIXME: should we move "post main window show callbacks" to here ?
+        pass

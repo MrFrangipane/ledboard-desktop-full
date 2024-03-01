@@ -63,7 +63,7 @@ class ScanOptions(QWidget):
 
         self.setFixedWidth(Components().configuration.side_bar_width)
 
-        # Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
+        Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
 
     def refresh_video_inputs(self):
         combo.update(self.combo_video_inputs, scan.get_capture_devices_names())
@@ -89,3 +89,4 @@ class ScanOptions(QWidget):
 
     def _load_settings(self):
         self.refresh_video_inputs()
+        # self.combo_video_inputs.setCurrentIndex(scan.video_capture_index())
