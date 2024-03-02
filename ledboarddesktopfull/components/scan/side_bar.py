@@ -215,9 +215,10 @@ class ScanSideBar(QWidget):
     #
     # Export
     def _export_indexed_led_segment(self):
-        filename, _ = QFileDialog.getSaveFileName()
-        if not filename:
-            return
+        # filename, _ = QFileDialog.getSaveFileName()
+        # if not filename:
+        #     return
+        filename = "segment.json"
 
         scan_api.export_indexed_led_segment(
             filename=filename,

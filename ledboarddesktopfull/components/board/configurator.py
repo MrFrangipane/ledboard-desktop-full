@@ -3,7 +3,7 @@ from ipaddress import IPv4Address
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QSpinBox, QComboBox, QPushButton
 from pyside6helpers import icons
 
-from ledboardclientfull import PixelType, board_api
+from ledboardclientfull import BoardExecutionMode, PixelType, board_api
 
 
 class BoardConfiguratorWidget(QWidget):
@@ -22,7 +22,10 @@ class BoardConfiguratorWidget(QWidget):
         self.spin_pixels_per_transmitter.setRange(0, 500)
 
         self.combo_pixel_type = QComboBox()
-        self.combo_pixel_type.addItems(["GRBW", "GRB"])
+        self.combo_pixel_type.addItems([item.name for item in PixelType])
+
+        self.combo_execution_mode = QComboBox()
+        self.combo_execution_mode.addItems([item.name for item in BoardExecutionMode])
 
         self.button_apply = QPushButton("Apply")
         self.button_apply.setIcon(icons.play_button())
@@ -41,24 +44,33 @@ class BoardConfiguratorWidget(QWidget):
 
         layout.addWidget(QLabel("Name"), 0, 0)
         layout.addWidget(self.line_name, 0, 1)
+
         layout.addWidget(QLabel("IP Address"), 1, 0)
         layout.addWidget(self.line_ip_address, 1, 1)
+
         layout.addWidget(QLabel("Artnet Universe"), 2, 0)
         layout.addWidget(self.spin_universe, 2, 1)
+
         layout.addWidget(QLabel("Pixels per transmitter"), 3, 0)
         layout.addWidget(self.spin_pixels_per_transmitter, 3, 1)
+
         layout.addWidget(QLabel("Pixel Type"), 4, 0)
         layout.addWidget(self.combo_pixel_type, 4, 1)
 
-        layout.addWidget(QLabel("Firmware revision"), 5, 0)
-        layout.addWidget(self.label_firmware_revision, 5, 1)
-        layout.addWidget(QLabel("Hardware revision"), 6, 0)
-        layout.addWidget(self.label_hardware_revision, 6, 1)
-        layout.addWidget(QLabel("Hardware ID"), 7, 0)
-        layout.addWidget(self.label_hardware_id, 7, 1)
+        layout.addWidget(QLabel("Execution Mode"), 5, 0)
+        layout.addWidget(self.combo_execution_mode, 5, 1)
 
-        layout.addWidget(self.button_apply, 8, 0, 1, 2)
-        layout.addWidget(self.button_save_and_reboot, 9, 0, 1, 2)
+        layout.addWidget(QLabel("Firmware revision"), 6, 0)
+        layout.addWidget(self.label_firmware_revision, 6, 1)
+
+        layout.addWidget(QLabel("Hardware revision"), 7, 0)
+        layout.addWidget(self.label_hardware_revision, 7, 1)
+
+        layout.addWidget(QLabel("Hardware ID"), 8, 0)
+        layout.addWidget(self.label_hardware_id, 8, 1)
+
+        layout.addWidget(self.button_apply, 9, 0, 1, 2)
+        layout.addWidget(self.button_save_and_reboot, 10, 0, 1, 2)
 
     def load_from_client(self):
         configuration = board_api.get_configuration()
@@ -68,6 +80,7 @@ class BoardConfiguratorWidget(QWidget):
         self.spin_universe.setValue(configuration.universe)
         self.spin_pixels_per_transmitter.setValue(configuration.pixel_per_transmitter)
         self.combo_pixel_type.setCurrentIndex(configuration.pixel_type.value)
+        self.combo_execution_mode.setCurrentIndex(configuration.execution_mode.value)
 
         self.label_firmware_revision.setText(str(configuration.firmware_revision))
         self.label_hardware_id.setText(configuration.hardware_id)
@@ -83,6 +96,7 @@ class BoardConfiguratorWidget(QWidget):
         configuration = board_api.get_selected_board()
 
         configuration.name = self.line_name.text()
+        configuration.execution_mode = BoardExecutionMode(self.combo_execution_mode.currentIndex())
         configuration.ip_address = IPv4Address(self.line_ip_address.text())
         configuration.universe = self.spin_universe.value()
         configuration.pixel_per_transmitter = self.spin_pixels_per_transmitter.value()
