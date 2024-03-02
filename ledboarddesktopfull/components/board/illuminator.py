@@ -8,6 +8,8 @@ class BoardIlluminatorWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self._dont_apply = 0
+
         self.slider_start = Slider(minimum=0, maximum=500, on_value_changed=self._apply)
         self.slider_end = Slider(minimum=0, maximum=500, on_value_changed=self._apply)
         self.slider_single = Slider(minimum=0, maximum=500, on_value_changed=self._apply_single)
@@ -42,17 +44,18 @@ class BoardIlluminatorWidget(QWidget):
         layout.addWidget(self.slider_w, 6, 1)
 
     def _apply_single(self):
-        # FIXME: figure out why signals are not blocked
-        self.slider_start.blockSignals(True)
-        self.slider_end.blockSignals(True)
+        self._dont_apply += 1
 
         self.slider_start.setValue(self.slider_single.value())
         self.slider_end.setValue(self.slider_single.value())
 
-        self.slider_start.blockSignals(False)
-        self.slider_end.blockSignals(False)
+        self._dont_apply -= 1
+        self._apply()
 
     def _apply(self):
+        if self._dont_apply > 0:
+            return
+
         illumination_api.illuminate(BoardIllumination(
             led_start=self.slider_start.value(),
             led_end=self.slider_end.value(),
@@ -63,9 +66,20 @@ class BoardIlluminatorWidget(QWidget):
         ))
 
     def load_from_client(self):
-        total_pixels = board_api.get_configuration().pixel_per_transmitter * 8
+        self._dont_apply += 1
+
+        total_pixels = board_api.get_configuration().pixel_per_transmitter * 8  # get_configuration(), current_board() ?
         self.slider_start.setRange(0, total_pixels)
         self.slider_end.setRange(0, total_pixels)
         self.slider_single.setRange(0, total_pixels)
 
-        illumination_api.get_illumination()
+        illumination = illumination_api.get_illumination()
+        self.slider_single.setValue(illumination.led_start)  # a bit hacky
+        self.slider_end.setValue(illumination.led_end)
+        self.slider_r.setValue(illumination.r)
+        self.slider_g.setValue(illumination.g)
+        self.slider_b.setValue(illumination.b)
+        self.slider_w.setValue(illumination.w)
+
+        self._dont_apply -= 1
+        self._apply()

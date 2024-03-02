@@ -1,7 +1,7 @@
 import argparse
 import logging
 
-from ledboarddesktopfull.core.components import Components
+from ledboarddesktopfull.core.ui_components import UiComponents
 
 _logger = logging.getLogger(__name__)
 

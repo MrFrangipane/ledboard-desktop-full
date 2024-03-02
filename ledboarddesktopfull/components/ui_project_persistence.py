@@ -1,3 +1,4 @@
+import logging
 import os.path
 
 from PySide6.QtCore import QObject
@@ -8,15 +9,18 @@ from pyside6helpers import icons
 
 from ledboardclientfull import project_api
 
-from ledboarddesktopfull.core.components import Components
+from ledboarddesktopfull.core.ui_components import UiComponents
+
+_logger = logging.getLogger(__name__)
 
 
-class ProjectPersistenceUi(QObject):
+class UiProjectPersistence(QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.action_new = QAction(icons.file(), "&New project")
-        self.action_new.triggered.connect(project_api.new)
+        self.action_new.triggered.connect(self.new)
+        self.action_new.setEnabled(False)
 
         self.action_load = QAction(icons.folder(), "&Load project...")
         self.action_load.triggered.connect(self.load)
@@ -25,10 +29,15 @@ class ProjectPersistenceUi(QObject):
         self.action_save.triggered.connect(self.save)
 
     def add_actions_to_menu(self, menu_bar: QMenuBar):
+        _logger.info("Adding actions to menu bar")
         file_menu = menu_bar.addMenu("&File")
         file_menu.addAction(self.action_new)
         file_menu.addAction(self.action_load)
         file_menu.addAction(self.action_save)
+
+    def new(self):
+        project_api.new()
+        self._update_widgets()
 
     def load(self):
         dialog = QFileDialog()
@@ -37,7 +46,8 @@ class ProjectPersistenceUi(QObject):
             project_api.load(filepath)
             self._update_widgets()
 
-    def save(self):
+    @staticmethod
+    def save():
         dialog = QFileDialog()
         filepath, _ = dialog.getSaveFileName()
         if filepath:
@@ -45,12 +55,15 @@ class ProjectPersistenceUi(QObject):
 
     @staticmethod
     def save_as_working():
+        _logger.info("Saving project working file")
         project_api.save(os.path.expanduser("~/ledboard-working-project.json"))
 
     def load_from_working(self):
+        _logger.info("Loading project working file")
         project_api.load(os.path.expanduser("~/ledboard-working-project.json"))
         self._update_widgets()
 
-    def _update_widgets(self):
-        # Components().board_selector.
-        pass
+    @staticmethod
+    def _update_widgets():
+        UiComponents().widgets.board_selector.load_from_client()  # /!\ includes board_illuminator.load_from_client()
+        UiComponents().widgets.scan.load_from_client()

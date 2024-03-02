@@ -9,7 +9,7 @@ from pyside6helpers.slider import Slider
 
 from ledboardclientfull import scan_api
 
-from ledboarddesktopfull.core.components import Components
+from ledboarddesktopfull.core.ui_components import UiComponents
 
 
 class ScanOptions(QWidget):
@@ -61,9 +61,7 @@ class ScanOptions(QWidget):
         layout.addWidget(QWidget())
         layout.setStretch(layout.count() - 1, 100)
 
-        self.setFixedWidth(Components().configuration.side_bar_width)
-
-        Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
+        self.setFixedWidth(UiComponents().configuration.side_bar_width)
 
     def refresh_video_inputs(self):
         combo.update(self.combo_video_inputs, scan_api.get_capture_devices_names())
@@ -87,6 +85,6 @@ class ScanOptions(QWidget):
         settings.viewport_brightest_pixel = self.checkbox_viewport_brightest_pixel.isChecked()
         scan_api.set_settings(settings)
 
-    def _load_settings(self):
+    def load_from_client(self):
         self.refresh_video_inputs()
-        # self.combo_video_inputs.setCurrentIndex(scan.video_capture_index())
+        self.combo_video_inputs.setCurrentIndex(scan_api.video_capture_index())

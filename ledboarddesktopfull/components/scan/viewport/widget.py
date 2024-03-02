@@ -6,7 +6,7 @@ from ledboardclientfull import scan_api
 from ledboarddesktopfull.components.scan.viewport.interactors.navigator import Navigator
 from ledboarddesktopfull.components.scan.viewport.interactors.mask_drawer import MaskDrawer
 from ledboarddesktopfull.components.scan.viewport.tools import ScanViewportTools
-from ledboarddesktopfull.core.components import Components
+from ledboarddesktopfull.core.ui_components import UiComponents
 from ledboarddesktopfull.python_extensions.graphics_view import GraphicsView
 from ledboarddesktopfull.python_extensions.graphics_image_plane import GraphicsImagePlane
 
@@ -54,7 +54,7 @@ class ScanViewport(QWidget):
         # Timers
         self._viewport_timer = QTimer(self)
         self._viewport_timer.timeout.connect(self._update_viewport)
-        self._viewport_timer.start(int(1000 / Components().configuration.scan_viewport_framerate))
+        self._viewport_timer.start(int(1000 / UiComponents().configuration.scan_viewport_framerate))
 
     def _update_viewport(self):
         self.image_plane.setPixmap(scan_api.viewport_pixmap())

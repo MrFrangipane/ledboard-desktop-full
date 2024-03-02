@@ -20,3 +20,7 @@ class ScanMainWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(make_group("Viewport", [self.viewport]), 100)
         layout.addWidget(self.options)
+
+    def load_from_client(self):
+        self.options.load_from_client()
+        # self.viewport.load_from_client()
