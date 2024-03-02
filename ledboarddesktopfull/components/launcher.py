@@ -20,6 +20,7 @@ from ledboarddesktopfull.core.ui_components import UiComponents as UiC
 
 _logger = logging.getLogger(__name__)
 _show_css_editor = False
+_save_on_quit = True
 
 
 class Launcher(QObject):
@@ -52,7 +53,8 @@ class Launcher(QObject):
             from pyside6helpers.css.editor import CSSEditor
             self.css_editor = CSSEditor("Frangitron", QApplication.instance())
 
-        self._application.aboutToQuit.connect(UiC().project_persistence.save_as_working)
+        if _save_on_quit:
+            self._application.aboutToQuit.connect(UiC().project_persistence.save_as_working)
 
     def exec(self) -> int:
         self._main_window.showMaximized()

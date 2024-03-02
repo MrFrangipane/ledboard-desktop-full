@@ -23,4 +23,4 @@ class ScanMainWidget(QWidget):
 
     def load_from_client(self):
         self.settings.load_from_client()
-        # self.viewport.load_from_client()
+        self.viewport.load_from_client()

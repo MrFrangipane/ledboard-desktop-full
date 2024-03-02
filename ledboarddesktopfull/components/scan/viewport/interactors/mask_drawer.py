@@ -1,7 +1,7 @@
-import numpy as np
-
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import QPolygonF, QPen, QBrush, QColor
+
+from ledboardclientfull import ScanMask
 
 from ledboarddesktopfull.python_extensions.abstract_graphicsview_interactor import AbstractGraphicsViewInteractor
 
@@ -31,12 +31,19 @@ class MaskDrawer(AbstractGraphicsViewInteractor):
         return self._polygon_item
 
     @property
-    def mask_geometry(self):  # fixme use a dataclass
-        points = np.array([
+    def mask(self) -> ScanMask:
+        mask = ScanMask()
+        mask.points = [
             [int(self._polygon.at(i).x()), int(self._polygon.at(i).y())]
             for i in range(self._polygon.count())
-        ])
-        return points
+        ]
+        return mask
+
+    def set_mask(self, mask: ScanMask) -> None:
+        self._polygon = QPolygonF()
+        for point in mask.points:
+            self._polygon.append(QPoint(*point))
+        self._polygon_item.setPolygon(self._polygon)
 
     def reset(self):
         self._polygon = QPolygonF()
