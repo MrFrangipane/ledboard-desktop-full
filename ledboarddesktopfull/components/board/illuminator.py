@@ -74,11 +74,11 @@ class BoardIlluminatorWidget(QWidget):
         self.slider_single.setRange(0, total_pixels)
 
         illumination = illumination_api.get_illumination()
-        self.radio_range.setChecked(illumination.type == BoardIlluminationType.Range.value)  # FIXME : serialize to Enum
+        self.radio_range.setChecked(illumination.type == BoardIlluminationType.Range)
         self.slider_first.setValue(illumination.led_first)
         self.slider_last.setValue(illumination.led_last)
 
-        self.radio_single.setChecked(illumination.type == BoardIlluminationType.Single.value)  # FIXME : serialize to Enum
+        self.radio_single.setChecked(illumination.type == BoardIlluminationType.Single)
         self.slider_single.setValue(illumination.led_single)
 
         self.slider_r.setValue(illumination.r)

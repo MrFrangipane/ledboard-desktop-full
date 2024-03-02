@@ -1,5 +1,6 @@
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QGraphicsScene
+from PySide6.QtGui import QPen, QColor
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QGraphicsScene, QGraphicsRectItem
 
 from ledboardclientfull import scan_api
 
@@ -14,6 +15,8 @@ from ledboarddesktopfull.python_extensions.graphics_image_plane import GraphicsI
 class ScanViewport(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self._detection_points_items: dict[int, QGraphicsRectItem] = dict()
 
         #
         # Widgets
@@ -59,6 +62,20 @@ class ScanViewport(QWidget):
     def _update_viewport(self):
         self.image_plane.setPixmap(scan_api.viewport_pixmap())
 
+        scan_result = scan_api.get_scan_result()
+        if scan_result is None:
+            return
+
+        for detection_point in scan_result.detected_points.values():
+            if detection_point.led_number not in self._detection_points_items:
+                new = QGraphicsRectItem(
+                    detection_point.x - 2, detection_point.y - 2,
+                    4, 4
+                )
+                new.setPen(QPen(QColor(0, 255, 255)))
+                self._detection_points_items[detection_point.led_number] = new
+                self.scene.addItem(new)
+
     def _mask_editing_changed(self, is_active):
         self.viewport_mask_drawer.is_active = is_active
         if not is_active:
@@ -73,3 +90,8 @@ class ScanViewport(QWidget):
 
     def load_from_client(self):
         self.viewport_mask_drawer.set_mask(scan_api.get_mask())  # FIXME: create ViewportMaskDrawer.load_from_client() ?
+
+    def clear_detection_points(self):
+        for item in self._detection_points_items.values():
+            self.scene.removeItem(item)
+        self._detection_points_items = dict()

@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QPushButton, QCheckBox
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QComboBox, QPushButton, QProgressBar, QCheckBox
 
 from pyside6helpers import combo, icons
 from pyside6helpers.group import make_group
@@ -48,6 +48,13 @@ class ScanSettingsWidget(QWidget):
         self.button_led_range_from_illumination.clicked.connect(self._led_range_from_illumination)
 
         #
+        # Start
+        self.button_start = QPushButton("Start")
+        self.button_start.setIcon(icons.play_button())
+        self.button_start.clicked.connect(self._start_stop_scan)
+        self.progress = QProgressBar()
+
+        #
         # Layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -78,8 +85,13 @@ class ScanSettingsWidget(QWidget):
         layout.addWidget(QWidget())
         layout.setStretch(layout.count() - 1, 100)
 
+        layout.addWidget(self.button_start)
+        layout.addWidget(self.progress)
+
         self.setFixedWidth(UiComponents().configuration.side_bar_width)
 
+    #
+    # Widgets
     def refresh_video_inputs(self):
         combo.update(self.combo_video_inputs, scan_api.get_capture_devices_names())
 
@@ -109,6 +121,16 @@ class ScanSettingsWidget(QWidget):
         settings.viewport_brightest_pixel = self.checkbox_viewport_brightest_pixel.isChecked()
         scan_api.set_settings(settings)
 
+    def _led_range_from_illumination(self):
+        self._dont_apply += 1
+        illumination = illumination_api.get_illumination()
+        self.spin_led_first.setValue(illumination.led_first)
+        self.spin_led_last.setValue(illumination.led_last)
+        self._dont_apply -= 1
+        self._apply()
+
+    #
+    # API update
     def load_from_client(self):
         self.refresh_video_inputs()
         self.combo_video_inputs.setCurrentIndex(scan_api.video_capture_index())
@@ -128,14 +150,6 @@ class ScanSettingsWidget(QWidget):
 
         self._dont_apply -= 1
 
-    def _led_range_from_illumination(self):
-        self._dont_apply += 1
-        illumination = illumination_api.get_illumination()
-        self.spin_led_first.setValue(illumination.led_first)
-        self.spin_led_last.setValue(illumination.led_last)
-        self._dont_apply -= 1
-        self._apply()
-
     def _apply(self):
         # FIXME: use this function for all widget changed
         if self._dont_apply > 0:
@@ -145,3 +159,34 @@ class ScanSettingsWidget(QWidget):
         settings.led_first = self.spin_led_first.value()
         settings.led_last = self.spin_led_last.value()
         scan_api.set_settings(settings)
+
+    #
+    # Scan
+    def _start_stop_scan(self):
+        if not scan_api.is_scanning():
+            self._start_scan()
+        else:
+            self._stop_scan()
+
+    def _start_scan(self):
+        self.button_start.setText("Stop")
+        self.button_start.setIcon(icons.stop())
+        scan_settings = scan_api.get_settings()
+        self.progress.setRange(scan_settings.led_first, scan_settings.led_last)
+
+        UiComponents().widgets.scan.clear_detection_points()
+
+        scan_api.start_scan()
+        while scan_api.is_scanning():
+            scan_api.step_scan()
+            self._update_progress()
+            QApplication.processEvents()
+
+    def _stop_scan(self):
+        self.button_start.setText("Start")
+        self.button_start.setIcon(icons.play_button())
+        self.progress.setValue(0)
+        scan_api.stop_scan()
+
+    def _update_progress(self):
+        self.progress.setValue(illumination_api.get_illumination().led_single)
