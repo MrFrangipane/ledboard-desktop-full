@@ -1,6 +1,6 @@
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QPen, QColor
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QGraphicsScene, QGraphicsRectItem
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QGraphicsScene, QGraphicsEllipseItem
 
 from ledboardclientfull import scan_api
 
@@ -16,7 +16,7 @@ class ScanViewport(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._detection_points_items: dict[int, QGraphicsRectItem] = dict()
+        self._detection_points_items: dict[int, QGraphicsEllipseItem] = dict()
 
         #
         # Widgets
@@ -68,11 +68,11 @@ class ScanViewport(QWidget):
 
         for detection_point in scan_result.detected_points.values():
             if detection_point.led_number not in self._detection_points_items:
-                new = QGraphicsRectItem(
-                    detection_point.x - 2, detection_point.y - 2,
-                    4, 4
+                new = QGraphicsEllipseItem(
+                    detection_point.x - 3, detection_point.y - 3,
+                    6, 6
                 )
-                new.setPen(QPen(QColor(0, 255, 255)))
+                new.setPen(QPen(QColor(200, 128, 255)))
                 self._detection_points_items[detection_point.led_number] = new
                 self.scene.addItem(new)
 

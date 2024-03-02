@@ -12,7 +12,7 @@ from ledboardclientfull import board_api, illumination_api, scan_api
 from ledboarddesktopfull.core.ui_components import UiComponents
 
 
-class ScanSettingsWidget(QWidget):
+class ScanSideBar(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -178,15 +178,19 @@ class ScanSettingsWidget(QWidget):
 
         scan_api.start_scan()
         while scan_api.is_scanning():
+            # FIXME : do this in a QThread
             scan_api.step_scan()
             self._update_progress()
             QApplication.processEvents()
 
+        self._stop_scan()
+
     def _stop_scan(self):
-        self.button_start.setText("Start")
-        self.button_start.setIcon(icons.play_button())
-        self.progress.setValue(0)
-        scan_api.stop_scan()
+        if scan_api.is_scanning():
+            self.button_start.setText("Start")
+            self.button_start.setIcon(icons.play_button())
+            self.progress.setValue(0)
+            scan_api.stop_scan()
 
     def _update_progress(self):
         self.progress.setValue(illumination_api.get_illumination().led_single)
