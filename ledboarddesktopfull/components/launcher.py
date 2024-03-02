@@ -2,9 +2,10 @@ import logging
 import os.path
 
 from PySide6.QtCore import QObject
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QApplication
 
-from pyside6helpers import css
+from pyside6helpers import css, icons
 from pyside6helpers.logger import dock_logger_to_main_window
 
 from ledboardclientfull import init_ledboard_client
@@ -37,6 +38,9 @@ class Launcher(QObject):
         self._application = QApplication()
         css.load_onto(self._application)
 
+        self.action_quit = QAction(icons.right_arrow(), "&Quit")
+        self.action_quit.triggered.connect(self._application.quit)
+
         self._main_window = MainWindow()
         dock_logger_to_main_window(self._main_window)
         self._main_window.resize(950, 600)
@@ -56,11 +60,21 @@ class Launcher(QObject):
         if _save_on_quit:
             self._application.aboutToQuit.connect(UiC().project_persistence.save_as_working)
 
+        self._init_menus()
+
     def exec(self) -> int:
         self._main_window.showMaximized()
         return self._application.exec()
 
-    def _init_ui_components(self):
+    def _init_menus(self):
+        menu_bar = self._main_window.menuBar()
+        file_menu = menu_bar.addMenu("&File")
+        UiC().project_persistence.add_actions_to_menu(file_menu)
+        file_menu.addSeparator()
+        file_menu.addAction(self.action_quit)
+
+    @staticmethod
+    def _init_ui_components():
         UiC().widgets.board_configurator = BoardConfiguratorWidget()
         UiC().widgets.board_illuminator = BoardIlluminatorWidget()
         UiC().widgets.board_selector = BoardSelectorWidget()
@@ -70,5 +84,3 @@ class Launcher(QObject):
 
         UiC().widgets.board_selector.boardSelected.connect(UiC().widgets.board_configurator.refresh)
         UiC().widgets.board_selector.boardSelected.connect(UiC().widgets.board_illuminator.load_from_client)
-
-        UiC().project_persistence.add_actions_to_menu(self._main_window.menuBar())

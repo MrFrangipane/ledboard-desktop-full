@@ -3,7 +3,7 @@ import os.path
 
 from PySide6.QtCore import QObject
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QMenuBar, QFileDialog
+from PySide6.QtWidgets import QMenu, QFileDialog
 
 from pyside6helpers import icons
 
@@ -18,6 +18,10 @@ class UiProjectPersistence(QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.action_save_working = QAction(icons.briefcase(), "Save to &working file")
+        self.action_save_working.triggered.connect(self.save_as_working)
+
         self.action_new = QAction(icons.file(), "&New project")
         self.action_new.triggered.connect(self.new)
         self.action_new.setEnabled(False)
@@ -28,12 +32,13 @@ class UiProjectPersistence(QObject):
         self.action_save = QAction(icons.diskette(), "&Save project...")
         self.action_save.triggered.connect(self.save)
 
-    def add_actions_to_menu(self, menu_bar: QMenuBar):
+    def add_actions_to_menu(self, menu: QMenu):
         _logger.info("Adding actions to menu bar")
-        file_menu = menu_bar.addMenu("&File")
-        file_menu.addAction(self.action_new)
-        file_menu.addAction(self.action_load)
-        file_menu.addAction(self.action_save)
+        menu.addAction(self.action_save_working)
+        menu.addSeparator()
+        menu.addAction(self.action_new)
+        menu.addAction(self.action_load)
+        menu.addAction(self.action_save)
 
     def new(self):
         project_api.new()
