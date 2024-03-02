@@ -3,9 +3,7 @@ from PySide6.QtWidgets import QWidget, QComboBox, QGridLayout, QPushButton
 
 from pyside6helpers import combo, icons, hourglass
 
-from ledboardclientfull import BoardsList, board
-
-from ledboarddesktopfull.core.components import Components
+from ledboardclientfull import BoardsList, board_api
 
 
 class BoardSelectorWidget(QWidget):
@@ -30,21 +28,19 @@ class BoardSelectorWidget(QWidget):
         layout.addWidget(self.combo)
         layout.addWidget(self.button_reload, 0, 1)
 
-        Components().configuration.on_main_window_shown_callbacks.append(self._load_settings)
-
     def _reload_board_list(self):
-        self._boards_list = board.available_boards()
+        self._boards_list = board_api.available_boards()
         combo.update(self.combo, [f"{b.name} ({b.serial_port_name})" for b in self._boards_list.boards])
 
     def board_selected(self, index):
-        board.select_board(self._boards_list.boards[index])
+        board_api.select_board(self._boards_list.boards[index])
         self.boardSelected.emit()
 
-    def _load_settings(self):
+    def load_from_client(self):
         self._reload_board_list()
-        current_board = board.get_selected_board()
+        current_board = board_api.get_selected_board()
         if current_board is not None:
-            index = board.index_from_hardware_id(current_board.hardware_id)
+            index = board_api.index_from_hardware_id(current_board.hardware_id)
             self.combo.setCurrentIndex(index)
         else:
             self.combo.setCurrentIndex(-1)

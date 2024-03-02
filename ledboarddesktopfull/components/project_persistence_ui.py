@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QMenuBar, QFileDialog
 
 from pyside6helpers import icons
 
-from ledboardclientfull import project as project_api
+from ledboardclientfull import project_api
 
 from ledboarddesktopfull.core.components import Components
 
@@ -52,6 +52,5 @@ class ProjectPersistenceUi(QObject):
         self._update_widgets()
 
     def _update_widgets(self):
-        # Components().board_selector.set_selected_board(project.board_port_name)
-        # FIXME: should we move "post main window show callbacks" to here ?
+        # Components().board_selector.
         pass

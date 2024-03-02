@@ -1,7 +1,7 @@
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QGraphicsScene
 
-from ledboardclientfull import scan
+from ledboardclientfull import scan_api
 
 from ledboarddesktopfull.components.scan.viewport.interactors.navigator import Navigator
 from ledboarddesktopfull.components.scan.viewport.interactors.mask_drawer import MaskDrawer
@@ -57,16 +57,16 @@ class ScanViewport(QWidget):
         self._viewport_timer.start(int(1000 / Components().configuration.scan_viewport_framerate))
 
     def _update_viewport(self):
-        self.image_plane.setPixmap(scan.viewport_pixmap())
+        self.image_plane.setPixmap(scan_api.viewport_pixmap())
 
     def _mask_editing_changed(self, is_active):
         self.viewport_mask_drawer.is_active = is_active
         if not is_active:
-            scan.set_mask(self.viewport_mask_drawer.mask_geometry)
+            scan_api.set_mask(self.viewport_mask_drawer.mask_geometry)
 
     def _mask_reset(self):
         self.viewport_mask_drawer.reset()
-        scan.reset_mask()
+        scan_api.reset_mask()
 
     def _mask_toggle_visible(self, is_visible):
         self.viewport_mask_drawer.mask_item.setVisible(is_visible)

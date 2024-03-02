@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout
 from pyside6helpers.group import make_group
 
 from ledboarddesktopfull.components.scan.viewport.widget import ScanViewport
-from ledboarddesktopfull.components.scan.widgets.options import ScanOptions
+from ledboarddesktopfull.components.scan.options import ScanOptions
 
 
 class ScanMainWidget(QWidget):
