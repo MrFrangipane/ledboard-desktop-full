@@ -12,6 +12,7 @@ class BoardSelectorWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self._dont_apply = 0
         self._boards_list = BoardsList()
 
         self.combo = QComboBox()
@@ -33,10 +34,15 @@ class BoardSelectorWidget(QWidget):
         combo.update(self.combo, [f"{b.name} ({b.serial_port_name})" for b in self._boards_list.boards])
 
     def board_selected(self, index):
+        if self._dont_apply > 0:
+            return
+
         board_api.select_board(self._boards_list.boards[index])
         self.boardSelected.emit()
 
     def load_from_client(self):
+        self._dont_apply += 1
+
         self._reload_board_list()
         current_board = board_api.get_selected_board()
         if current_board is not None:
@@ -44,3 +50,5 @@ class BoardSelectorWidget(QWidget):
             self.combo.setCurrentIndex(index)
         else:
             self.combo.setCurrentIndex(-1)
+
+        self._dont_apply -= 1

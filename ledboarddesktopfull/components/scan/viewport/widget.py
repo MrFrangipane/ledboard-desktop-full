@@ -72,4 +72,4 @@ class ScanViewport(QWidget):
         self.viewport_mask_drawer.mask_item.setVisible(is_visible)
 
     def load_from_client(self):
-        self.viewport_mask_drawer.set_mask(scan_api.get_mask())
+        self.viewport_mask_drawer.set_mask(scan_api.get_mask())  # FIXME: create ViewportMaskDrawer.load_from_client() ?

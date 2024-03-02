@@ -84,3 +84,4 @@ class Launcher(QObject):
 
         UiC().widgets.board_selector.boardSelected.connect(UiC().widgets.board_configurator.refresh)
         UiC().widgets.board_selector.boardSelected.connect(UiC().widgets.board_illuminator.load_from_client)
+        UiC().widgets.board_selector.boardSelected.connect(UiC().widgets.scan.load_from_client)

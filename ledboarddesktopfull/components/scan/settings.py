@@ -1,13 +1,13 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QPushButton, QCheckBox
 
+from pyside6helpers import combo, icons
 from pyside6helpers.group import make_group
-from pyside6helpers import icons
 from pyside6helpers.hourglass import hourglass_wrapper
-from pyside6helpers import combo
 from pyside6helpers.slider import Slider
+from pyside6helpers.spinbox import SpinBox
 
-from ledboardclientfull import scan_api
+from ledboardclientfull import board_api, illumination_api, scan_api
 
 from ledboarddesktopfull.core.ui_components import UiComponents
 
@@ -41,6 +41,13 @@ class ScanSettingsWidget(QWidget):
         )
 
         #
+        # LEDs
+        self.spin_led_first = SpinBox("first", on_value_changed=self._apply)
+        self.spin_led_last = SpinBox("last", on_value_changed=self._apply)
+        self.button_led_range_from_illumination = QPushButton("From illumination")
+        self.button_led_range_from_illumination.clicked.connect(self._led_range_from_illumination)
+
+        #
         # Layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -58,6 +65,14 @@ class ScanSettingsWidget(QWidget):
                 self.checkbox_viewport_brightest_pixel,
                 self.checkbox_viewport_blur,
                 self.slider_blur_radius
+            ]
+        ))
+        layout.addWidget(make_group(
+            "LEDs",
+            widgets=[
+                self.spin_led_first,
+                self.spin_led_last,
+                self.button_led_range_from_illumination
             ]
         ))
         layout.addWidget(QWidget())
@@ -100,9 +115,33 @@ class ScanSettingsWidget(QWidget):
 
         self._dont_apply += 1
 
-        settings = scan_api.get_settings()
-        self.checkbox_viewport_blur.setChecked(settings.viewport_blur)
-        self.checkbox_viewport_brightest_pixel.setChecked(settings.viewport_brightest_pixel)
-        self.slider_blur_radius.setValue(settings.blur_radius)
+        scan_settings = scan_api.get_settings()
+        self.checkbox_viewport_blur.setChecked(scan_settings.viewport_blur)
+        self.checkbox_viewport_brightest_pixel.setChecked(scan_settings.viewport_brightest_pixel)
+        self.slider_blur_radius.setValue(scan_settings.blur_radius)
+
+        board_settings = board_api.get_selected_board()
+        self.spin_led_first.setRange(0, board_settings.pixel_per_transmitter * 8)
+        self.spin_led_first.setValue(scan_settings.led_first)
+        self.spin_led_last.setRange(0, board_settings.pixel_per_transmitter * 8)
+        self.spin_led_last.setValue(scan_settings.led_last)
 
         self._dont_apply -= 1
+
+    def _led_range_from_illumination(self):
+        self._dont_apply += 1
+        illumination = illumination_api.get_illumination()
+        self.spin_led_first.setValue(illumination.led_start)
+        self.spin_led_last.setValue(illumination.led_end)
+        self._dont_apply -= 1
+        self._apply()
+
+    def _apply(self):
+        # FIXME: use this function for all widget changed
+        if self._dont_apply > 0:
+            return
+
+        settings = scan_api.get_settings()
+        settings.led_first = self.spin_led_first.value()
+        settings.led_last = self.spin_led_last.value()
+        scan_api.set_settings(settings)
