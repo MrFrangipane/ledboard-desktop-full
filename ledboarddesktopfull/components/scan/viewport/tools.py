@@ -6,10 +6,11 @@ from pyside6helpers.frame import make_h_line
 
 
 class ScanViewportTools(QWidget):
+    fitClicked = Signal()
     maskEditingChanged = Signal(bool)
     maskResetClicked = Signal()
     maskToggleVisible = Signal(bool)
-    fitClicked = Signal()
+    saveScanEditsClicked = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -35,6 +36,10 @@ class ScanViewportTools(QWidget):
         self.button_mask_reset.setToolTip("Masking")
         self.button_mask_reset.setIcon(icons.trash())
 
+        self.button_save_scan_edits = QPushButton("Save edits")
+        self.button_save_scan_edits.setToolTip("Save moved detected points")
+        self.button_save_scan_edits.setIcon(icons.diskette())
+
         #
         # Layout
         layout = QVBoxLayout(self)
@@ -45,6 +50,8 @@ class ScanViewportTools(QWidget):
         layout.addWidget(self.button_mask_edit)
         layout.addWidget(self.button_mask_toggle_visible)
         layout.addWidget(self.button_mask_reset)
+        layout.addWidget(make_h_line())
+        layout.addWidget(self.button_save_scan_edits)
 
         layout.addWidget(QWidget())
         layout.setStretch(layout.count() - 1, 100)
@@ -53,6 +60,7 @@ class ScanViewportTools(QWidget):
         # Signals
         self.button_mask_edit.clicked.connect(self.maskEditingChanged)
         self.button_mask_reset.clicked.connect(self.maskResetClicked)
+        self.button_save_scan_edits.clicked.connect(self.saveScanEditsClicked)
 
     def _mask_toggle_visible(self):
         if self._is_mask_visible:
