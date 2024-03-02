@@ -60,7 +60,7 @@ class BoardConfiguratorWidget(QWidget):
         layout.addWidget(self.button_apply, 8, 0, 1, 2)
         layout.addWidget(self.button_save_and_reboot, 9, 0, 1, 2)
 
-    def refresh(self):
+    def load_from_client(self):
         configuration = board_api.get_configuration()
 
         self.line_name.setText(configuration.name.strip())

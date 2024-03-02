@@ -1,7 +1,9 @@
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QRadioButton
 
+from pyside6helpers.group import make_group_grid
 from pyside6helpers.slider import Slider
-from ledboardclientfull import BoardIllumination, board_api, illumination_api
+
+from ledboardclientfull import BoardIllumination, BoardIlluminationType, board_api, illumination_api
 
 
 class BoardIlluminatorWidget(QWidget):
@@ -10,9 +12,13 @@ class BoardIlluminatorWidget(QWidget):
 
         self._dont_apply = 0
 
-        self.slider_start = Slider(minimum=0, maximum=500, on_value_changed=self._apply)
-        self.slider_end = Slider(minimum=0, maximum=500, on_value_changed=self._apply)
-        self.slider_single = Slider(minimum=0, maximum=500, on_value_changed=self._apply_single)
+        self.radio_range = QRadioButton("Range")
+        self.radio_range.toggled.connect(self._apply)
+        self.slider_first = Slider(minimum=0, maximum=500, on_value_changed=self._apply)
+        self.slider_last = Slider(minimum=0, maximum=500, on_value_changed=self._apply)
+
+        self.radio_single = QRadioButton("Single")
+        self.slider_single = Slider(minimum=0, maximum=500, on_value_changed=self._apply)
 
         self.slider_r = Slider(minimum=0, maximum=255, on_value_changed=self._apply)
         self.slider_g = Slider(minimum=0, maximum=255, on_value_changed=self._apply)
@@ -22,43 +28,36 @@ class BoardIlluminatorWidget(QWidget):
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        layout.addWidget(QLabel("LED start"), 0, 0)
-        layout.addWidget(self.slider_start, 0, 1)
+        layout.addWidget(self.radio_range, 0, 0, 1, 2)
 
-        layout.addWidget(QLabel("LED end"), 1, 0)
-        layout.addWidget(self.slider_end, 1, 1)
+        layout.addWidget(QLabel("LED start"), 1, 0)
+        layout.addWidget(self.slider_first, 1, 1)
 
-        layout.addWidget(QLabel("LED single"), 2, 0)
-        layout.addWidget(self.slider_single, 2, 1)
+        layout.addWidget(QLabel("LED end"), 2, 0)
+        layout.addWidget(self.slider_last, 2, 1)
 
-        layout.addWidget(QLabel("Red"), 3, 0)
-        layout.addWidget(self.slider_r, 3, 1)
+        layout.addWidget(self.radio_single, 3, 0, 1, 2)
 
-        layout.addWidget(QLabel("Green"), 4, 0)
-        layout.addWidget(self.slider_g, 4, 1)
+        layout.addWidget(QLabel("LED single"), 4, 0)
+        layout.addWidget(self.slider_single, 4, 1)
 
-        layout.addWidget(QLabel("Blue"), 5, 0)
-        layout.addWidget(self.slider_b, 5, 1)
-
-        layout.addWidget(QLabel("White"), 6, 0)
-        layout.addWidget(self.slider_w, 6, 1)
-
-    def _apply_single(self):
-        self._dont_apply += 1
-
-        self.slider_start.setValue(self.slider_single.value())
-        self.slider_end.setValue(self.slider_single.value())
-
-        self._dont_apply -= 1
-        self._apply()
+        layout.addWidget(make_group_grid("Color", [
+            [QLabel("Red"), self.slider_r],
+            [QLabel("Green"), self.slider_g],
+            [QLabel("Blue"), self.slider_b],
+            [QLabel("White"), self.slider_w]
+        ]), 5, 0, 1, 2)
 
     def _apply(self):
         if self._dont_apply > 0:
             return
 
+        type_ = BoardIlluminationType.Range if self.radio_range.isChecked() else BoardIlluminationType.Single
         illumination_api.illuminate(BoardIllumination(
-            led_start=self.slider_start.value(),
-            led_end=self.slider_end.value(),
+            type=type_,
+            led_single=self.slider_single.value(),
+            led_first=self.slider_first.value(),
+            led_last=self.slider_last.value(),
             r=self.slider_r.value(),
             g=self.slider_g.value(),
             b=self.slider_b.value(),
@@ -68,14 +67,20 @@ class BoardIlluminatorWidget(QWidget):
     def load_from_client(self):
         self._dont_apply += 1
 
-        total_pixels = board_api.get_configuration().pixel_per_transmitter * 8  # get_configuration(), current_board() ?
-        self.slider_start.setRange(0, total_pixels)
-        self.slider_end.setRange(0, total_pixels)
+        configuration = board_api.get_configuration()
+        total_pixels = configuration.pixel_per_transmitter * 8  # get_configuration(), current_board() ?
+        self.slider_first.setRange(0, total_pixels)
+        self.slider_last.setRange(0, total_pixels)
         self.slider_single.setRange(0, total_pixels)
 
         illumination = illumination_api.get_illumination()
-        self.slider_single.setValue(illumination.led_start)  # a bit hacky
-        self.slider_end.setValue(illumination.led_end)
+        self.radio_range.setChecked(illumination.type == BoardIlluminationType.Range.value)  # FIXME : serialize to Enum
+        self.slider_first.setValue(illumination.led_first)
+        self.slider_last.setValue(illumination.led_last)
+
+        self.radio_single.setChecked(illumination.type == BoardIlluminationType.Single.value)  # FIXME : serialize to Enum
+        self.slider_single.setValue(illumination.led_single)
+
         self.slider_r.setValue(illumination.r)
         self.slider_g.setValue(illumination.g)
         self.slider_b.setValue(illumination.b)

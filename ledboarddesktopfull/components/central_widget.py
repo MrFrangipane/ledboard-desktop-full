@@ -17,7 +17,7 @@ class CentralWidget(QWidget):
             [UiComponents().widgets.board_configurator],
             fixed_width=UiComponents().configuration.side_bar_width
         ))
-        layout.addWidget(make_group("Simple illumination", [UiComponents().widgets.board_illuminator]))
+        layout.addWidget(make_group("Illumination", [UiComponents().widgets.board_illuminator]))
         layout.addWidget(QWidget())
 
         layout.addWidget(make_tabs({

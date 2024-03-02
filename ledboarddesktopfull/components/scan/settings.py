@@ -44,7 +44,7 @@ class ScanSettingsWidget(QWidget):
         # LEDs
         self.spin_led_first = SpinBox("first", on_value_changed=self._apply)
         self.spin_led_last = SpinBox("last", on_value_changed=self._apply)
-        self.button_led_range_from_illumination = QPushButton("From illumination")
+        self.button_led_range_from_illumination = QPushButton("From illumination range")
         self.button_led_range_from_illumination.clicked.connect(self._led_range_from_illumination)
 
         #
@@ -131,8 +131,8 @@ class ScanSettingsWidget(QWidget):
     def _led_range_from_illumination(self):
         self._dont_apply += 1
         illumination = illumination_api.get_illumination()
-        self.spin_led_first.setValue(illumination.led_start)
-        self.spin_led_last.setValue(illumination.led_end)
+        self.spin_led_first.setValue(illumination.led_first)
+        self.spin_led_last.setValue(illumination.led_last)
         self._dont_apply -= 1
         self._apply()
 

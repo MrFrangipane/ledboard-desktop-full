@@ -70,5 +70,7 @@ class UiProjectPersistence(QObject):
 
     @staticmethod
     def _update_widgets():
-        UiComponents().widgets.board_selector.load_from_client()  # /!\ includes board_illuminator.load_from_client()
+        UiComponents().widgets.board_selector.load_from_client()
+        UiComponents().widgets.board_configurator.load_from_client()
+        UiComponents().widgets.board_illuminator.load_from_client()
         UiComponents().widgets.scan.load_from_client()
