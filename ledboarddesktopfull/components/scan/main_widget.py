@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout
 from pyside6helpers.group import make_group
 
 from ledboarddesktopfull.components.scan.viewport.widget import ScanViewport
-from ledboarddesktopfull.components.scan.options import ScanOptions
+from ledboarddesktopfull.components.scan.settings import ScanSettingsWidget
 
 
 class ScanMainWidget(QWidget):
@@ -11,7 +11,7 @@ class ScanMainWidget(QWidget):
         super().__init__(parent)
 
         # Widgets
-        self.options = ScanOptions()
+        self.settings = ScanSettingsWidget()
         self.viewport = ScanViewport()
 
         #
@@ -19,8 +19,8 @@ class ScanMainWidget(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(make_group("Viewport", [self.viewport]), 100)
-        layout.addWidget(self.options)
+        layout.addWidget(self.settings)
 
     def load_from_client(self):
-        self.options.load_from_client()
+        self.settings.load_from_client()
         # self.viewport.load_from_client()

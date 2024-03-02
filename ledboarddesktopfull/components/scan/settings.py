@@ -12,9 +12,11 @@ from ledboardclientfull import scan_api
 from ledboarddesktopfull.core.ui_components import UiComponents
 
 
-class ScanOptions(QWidget):
+class ScanSettingsWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self._dont_apply = 0
 
         #
         # Video input
@@ -66,21 +68,28 @@ class ScanOptions(QWidget):
     def refresh_video_inputs(self):
         combo.update(self.combo_video_inputs, scan_api.get_capture_devices_names())
 
-    @staticmethod
-    def video_input_changed(index):
+    def video_input_changed(self, index):
+        if self._dont_apply > 0:
+            return
         scan_api.set_capture_device(index)
 
     def is_live_blur_changed(self):
+        if self._dont_apply > 0:
+            return
         settings = scan_api.get_settings()
         settings.viewport_blur = self.checkbox_viewport_blur.isChecked()
         scan_api.set_settings(settings)
 
     def blur_radius_changed(self):
+        if self._dont_apply > 0:
+            return
         settings = scan_api.get_settings()
         settings.blur_radius = self.slider_blur_radius.value()
         scan_api.set_settings(settings)
 
     def brightest_pixel_changed(self):
+        if self._dont_apply > 0:
+            return
         settings = scan_api.get_settings()
         settings.viewport_brightest_pixel = self.checkbox_viewport_brightest_pixel.isChecked()
         scan_api.set_settings(settings)
@@ -88,3 +97,12 @@ class ScanOptions(QWidget):
     def load_from_client(self):
         self.refresh_video_inputs()
         self.combo_video_inputs.setCurrentIndex(scan_api.video_capture_index())
+
+        self._dont_apply += 1
+
+        settings = scan_api.get_settings()
+        self.checkbox_viewport_blur.setChecked(settings.viewport_blur)
+        self.checkbox_viewport_brightest_pixel.setChecked(settings.viewport_brightest_pixel)
+        self.slider_blur_radius.setValue(settings.blur_radius)
+
+        self._dont_apply -= 1
