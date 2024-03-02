@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QComboBox, QPushButton, QProgressBar, QCheckBox
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QComboBox, QPushButton, QProgressBar, QCheckBox, QFileDialog
 
 from pyside6helpers import combo, icons
 from pyside6helpers.group import make_group
@@ -48,11 +48,19 @@ class ScanSideBar(QWidget):
         self.button_led_range_from_illumination.clicked.connect(self._led_range_from_illumination)
 
         #
-        # Start
+        # Execution
         self.button_start = QPushButton("Start")
         self.button_start.setIcon(icons.play_button())
         self.button_start.clicked.connect(self._start_stop_scan)
         self.progress = QProgressBar()
+
+        #
+        # Export indexed led segments
+        self.spin_segment_division_count = SpinBox("Segment division count", minimum=1, maximum=100)
+        self.spin_transmitter_index = SpinBox("Transmitter", minimum=1, maximum=8)
+        self.button_export_indexed_led_segments = QPushButton("Export indexed LED segment...")
+        self.button_export_indexed_led_segments.setIcon(icons.upload())
+        self.button_export_indexed_led_segments.clicked.connect(self._export_indexed_led_segment)
 
         #
         # Layout
@@ -82,11 +90,20 @@ class ScanSideBar(QWidget):
                 self.button_led_range_from_illumination
             ]
         ))
+        layout.addWidget(self.button_start)
+        layout.addWidget(self.progress)
+
         layout.addWidget(QWidget())
         layout.setStretch(layout.count() - 1, 100)
 
-        layout.addWidget(self.button_start)
-        layout.addWidget(self.progress)
+        layout.addWidget(make_group(
+            "Export",
+            widgets=[
+                self.spin_transmitter_index,
+                self.spin_segment_division_count,
+                self.button_export_indexed_led_segments
+            ]
+        ))
 
         self.setFixedWidth(UiComponents().configuration.side_bar_width)
 
@@ -194,3 +211,16 @@ class ScanSideBar(QWidget):
 
     def _update_progress(self):
         self.progress.setValue(illumination_api.get_illumination().led_single)
+
+    #
+    # Export
+    def _export_indexed_led_segment(self):
+        filename, _ = QFileDialog.getSaveFileName()
+        if not filename:
+            return
+
+        scan_api.export_indexed_led_segment(
+            filename=filename,
+            transmitter=self.spin_transmitter_index.value(),
+            division_count=self.spin_segment_division_count.value()
+        )
