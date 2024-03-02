@@ -42,5 +42,9 @@ class BoardSelectorWidget(QWidget):
 
     def _load_settings(self):
         self._reload_board_list()
-        index = self._boards_list.index_from_hardware_id(board.get_selected_board().hardware_id)
-        self.combo.setCurrentIndex(index)
+        current_board = board.get_selected_board()
+        if current_board is not None:
+            index = board.index_from_hardware_id(current_board.hardware_id)
+            self.combo.setCurrentIndex(index)
+        else:
+            self.combo.setCurrentIndex(-1)
