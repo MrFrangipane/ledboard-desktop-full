@@ -27,6 +27,10 @@ class BoardConfiguratorWidget(QWidget):
         self.combo_execution_mode = QComboBox()
         self.combo_execution_mode.addItems([item.name for item in BoardExecutionMode])
 
+        self.button_load_from_board = QPushButton("Load from board")
+        self.button_load_from_board.setIcon(icons.refresh())
+        self.button_load_from_board.clicked.connect(self.load_from_client)
+
         self.button_apply = QPushButton("Apply")
         self.button_apply.setIcon(icons.play_button())
         self.button_apply.clicked.connect(self.apply)
@@ -69,8 +73,9 @@ class BoardConfiguratorWidget(QWidget):
         layout.addWidget(QLabel("Hardware ID"), 8, 0)
         layout.addWidget(self.label_hardware_id, 8, 1)
 
-        layout.addWidget(self.button_apply, 9, 0, 1, 2)
-        layout.addWidget(self.button_save_and_reboot, 10, 0, 1, 2)
+        layout.addWidget(self.button_load_from_board, 9, 0, 1, 2)
+        layout.addWidget(self.button_apply, 10, 0, 1, 2)
+        layout.addWidget(self.button_save_and_reboot, 11, 0, 1, 2)
 
     def load_from_client(self):
         configuration = board_api.get_configuration()
