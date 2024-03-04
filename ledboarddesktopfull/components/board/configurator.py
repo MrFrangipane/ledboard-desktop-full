@@ -82,8 +82,8 @@ class BoardConfiguratorWidget(QWidget):
 
         self.line_name.setText(configuration.name.strip())
         self.line_ip_address.setText(str(configuration.ip_address))
-        self.spin_universe.setValue(configuration.universe)
-        self.spin_pixels_per_transmitter.setValue(configuration.pixel_per_transmitter)
+        self.spin_universe.setValue(configuration.universe_a) # FIXME there are 3 universes now
+        self.spin_pixels_per_transmitter.setValue(configuration.led_per_transmitter)
         self.combo_pixel_type.setCurrentIndex(configuration.pixel_type.value)
         self.combo_execution_mode.setCurrentIndex(configuration.execution_mode.value)
 
@@ -103,8 +103,8 @@ class BoardConfiguratorWidget(QWidget):
         configuration.name = self.line_name.text()
         configuration.execution_mode = BoardExecutionMode(self.combo_execution_mode.currentIndex())
         configuration.ip_address = IPv4Address(self.line_ip_address.text())
-        configuration.universe = self.spin_universe.value()
-        configuration.pixel_per_transmitter = self.spin_pixels_per_transmitter.value()
+        configuration.universe_a = self.spin_universe.value()
+        configuration.led_per_transmitter = self.spin_pixels_per_transmitter.value()
         configuration.pixel_type = PixelType(self.combo_pixel_type.currentIndex())
         configuration.do_save_and_reboot = save
 

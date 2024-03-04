@@ -68,7 +68,7 @@ class BoardIlluminatorWidget(QWidget):
         self._dont_apply += 1
 
         configuration = board_api.get_configuration()
-        total_pixels = configuration.pixel_per_transmitter * 8  # get_configuration(), current_board() ?
+        total_pixels = configuration.led_per_transmitter * 8  # get_configuration(), current_board() ?
         self.slider_first.setRange(0, total_pixels)
         self.slider_last.setRange(0, total_pixels)
         self.slider_single.setRange(0, total_pixels)

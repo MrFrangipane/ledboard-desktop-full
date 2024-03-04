@@ -56,7 +56,7 @@ class ScanSideBar(QWidget):
 
         #
         # Export indexed led segments
-        self.spin_segment_division_count = SpinBox("Segment division count", minimum=1, maximum=100)
+        self.spin_segment_division_count = SpinBox("Segment division count", minimum=1, maximum=100, value=25)  # FIXME 25 for Blitz (5x25 < 128)
         self.spin_transmitter_index = SpinBox("Transmitter", minimum=1, maximum=8)
         self.button_export_indexed_led_segments = QPushButton("Export indexed LED segment...")
         self.button_export_indexed_led_segments.setIcon(icons.upload())
@@ -160,9 +160,9 @@ class ScanSideBar(QWidget):
         self.slider_blur_radius.setValue(scan_settings.blur_radius)
 
         board_settings = board_api.get_selected_board()
-        self.spin_led_first.setRange(0, board_settings.pixel_per_transmitter * 8)
+        self.spin_led_first.setRange(0, board_settings.led_per_transmitter * 8)
         self.spin_led_first.setValue(scan_settings.led_first)
-        self.spin_led_last.setRange(0, board_settings.pixel_per_transmitter * 8)
+        self.spin_led_last.setRange(0, board_settings.led_per_transmitter * 8)
         self.spin_led_last.setValue(scan_settings.led_last)
 
         self._dont_apply -= 1
