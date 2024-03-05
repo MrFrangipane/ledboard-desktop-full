@@ -18,8 +18,12 @@ class BoardConfiguratorWidget(QWidget):
 
         self.line_ip_address = QLineEdit()
 
-        self.spin_universe = QSpinBox()
-        self.spin_universe.setRange(0, 15)
+        self.spin_universe_a = QSpinBox()
+        self.spin_universe_a.setRange(0, 15)
+        self.spin_universe_b = QSpinBox()
+        self.spin_universe_b.setRange(0, 15)
+        self.spin_universe_c = QSpinBox()
+        self.spin_universe_c.setRange(0, 15)
 
         self.spin_pixels_per_transmitter = QSpinBox()
         self.spin_pixels_per_transmitter.setRange(0, 500)
@@ -55,37 +59,43 @@ class BoardConfiguratorWidget(QWidget):
         layout.addWidget(QLabel("IP Address"), 1, 0)
         layout.addWidget(self.line_ip_address, 1, 1)
 
-        layout.addWidget(QLabel("Artnet Universe"), 2, 0)
-        layout.addWidget(self.spin_universe, 2, 1)
+        layout.addWidget(QLabel("Artnet Universe A"), 2, 0)
+        layout.addWidget(self.spin_universe_a, 2, 1)
+        layout.addWidget(QLabel("Artnet Universe B"), 3, 0)
+        layout.addWidget(self.spin_universe_b, 3, 1)
+        layout.addWidget(QLabel("Artnet Universe C"), 4, 0)
+        layout.addWidget(self.spin_universe_c, 4, 1)
 
-        layout.addWidget(QLabel("Pixels per transmitter"), 3, 0)
-        layout.addWidget(self.spin_pixels_per_transmitter, 3, 1)
+        layout.addWidget(QLabel("Pixels per transmitter"), 5, 0)
+        layout.addWidget(self.spin_pixels_per_transmitter, 5, 1)
 
-        layout.addWidget(QLabel("Pixel Type"), 4, 0)
-        layout.addWidget(self.combo_pixel_type, 4, 1)
+        layout.addWidget(QLabel("Pixel Type"), 6, 0)
+        layout.addWidget(self.combo_pixel_type, 6, 1)
 
-        layout.addWidget(QLabel("Execution Mode"), 5, 0)
-        layout.addWidget(self.combo_execution_mode, 5, 1)
+        layout.addWidget(QLabel("Execution Mode"), 7, 0)
+        layout.addWidget(self.combo_execution_mode, 7, 1)
 
-        layout.addWidget(QLabel("Firmware revision"), 6, 0)
-        layout.addWidget(self.label_firmware_revision, 6, 1)
+        layout.addWidget(QLabel("Firmware revision"), 8, 0)
+        layout.addWidget(self.label_firmware_revision, 8, 1)
 
-        layout.addWidget(QLabel("Hardware revision"), 7, 0)
-        layout.addWidget(self.label_hardware_revision, 7, 1)
+        layout.addWidget(QLabel("Hardware revision"), 9, 0)
+        layout.addWidget(self.label_hardware_revision, 9, 1)
 
-        layout.addWidget(QLabel("Hardware ID"), 8, 0)
-        layout.addWidget(self.label_hardware_id, 8, 1)
+        layout.addWidget(QLabel("Hardware ID"), 10, 0)
+        layout.addWidget(self.label_hardware_id, 10, 1)
 
-        layout.addWidget(self.button_load_from_board, 9, 0, 1, 2)
-        layout.addWidget(self.button_apply, 10, 0, 1, 2)
-        layout.addWidget(self.button_save_and_reboot, 11, 0, 1, 2)
+        layout.addWidget(self.button_load_from_board, 11, 0, 1, 2)
+        layout.addWidget(self.button_apply, 12, 0, 1, 2)
+        layout.addWidget(self.button_save_and_reboot, 13, 0, 1, 2)
 
     def load_from_client(self):
         configuration = board_api.get_configuration()
 
         self.line_name.setText(configuration.name.strip())
         self.line_ip_address.setText(str(configuration.ip_address))
-        self.spin_universe.setValue(configuration.universe_a) # FIXME there are 3 universes now
+        self.spin_universe_a.setValue(configuration.universe_a)
+        self.spin_universe_b.setValue(configuration.universe_b)
+        self.spin_universe_c.setValue(configuration.universe_c)
         self.spin_pixels_per_transmitter.setValue(configuration.led_per_transmitter)
         self.combo_pixel_type.setCurrentIndex(configuration.pixel_type.value)
         self.combo_execution_mode.setCurrentIndex(configuration.execution_mode.value)
@@ -106,7 +116,9 @@ class BoardConfiguratorWidget(QWidget):
         configuration.name = self.line_name.text()
         configuration.execution_mode = BoardExecutionMode(self.combo_execution_mode.currentIndex())
         configuration.ip_address = IPv4Address(self.line_ip_address.text())
-        configuration.universe_a = self.spin_universe.value()
+        configuration.universe_a = self.spin_universe_a.value()
+        configuration.universe_b = self.spin_universe_b.value()
+        configuration.universe_c = self.spin_universe_c.value()
         configuration.led_per_transmitter = self.spin_pixels_per_transmitter.value()
         configuration.pixel_type = PixelType(self.combo_pixel_type.currentIndex())
         configuration.do_save_and_reboot = save
