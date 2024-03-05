@@ -1,11 +1,13 @@
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtGui import QPen, QColor
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QGraphicsScene, QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsItem
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QGraphicsScene, QGraphicsRectItem, QGraphicsEllipseItem
 
 from ledboardclientfull import DetectionPoint, scan_api
 
+from ledboarddesktopfull.components.scan.viewport.detection_point_graphics_item import DetectionPointGraphicsItem
 from ledboarddesktopfull.components.scan.viewport.interactors.navigator import Navigator
 from ledboarddesktopfull.components.scan.viewport.interactors.mask_drawer import MaskDrawer
+from ledboarddesktopfull.components.scan.viewport.interactors.detection_point_selector import DetectionPointSelector
 from ledboarddesktopfull.components.scan.viewport.tools import ScanViewportTools
 from ledboarddesktopfull.core.ui_components import UiComponents
 from ledboarddesktopfull.python_extensions.graphics_view import GraphicsView
@@ -18,7 +20,7 @@ class ScanViewport(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._detection_points_items: dict[int, QGraphicsEllipseItem] = dict()
+        self._detection_points_items: dict[int, DetectionPointGraphicsItem] = dict()
 
         #
         # Widgets
@@ -52,9 +54,11 @@ class ScanViewport(QWidget):
         # Interactors
         self.viewport_navigator = Navigator(self.view, self.image_plane)
         self.viewport_mask_drawer = MaskDrawer(self.view)
+        self.viewport_detection_point_selector = DetectionPointSelector(self.view)
 
         self.view.interactors.append(self.viewport_navigator)
         self.view.interactors.append(self.viewport_mask_drawer)
+        self.view.interactors.append(self.viewport_detection_point_selector)
 
         self.image_plane.set_on_size_change_callbacks([
             self.viewport_navigator.fit,
@@ -68,6 +72,7 @@ class ScanViewport(QWidget):
         self.tools.maskResetClicked.connect(self._mask_reset)
         self.tools.maskToggleVisible.connect(self._mask_toggle_visible)
         self.tools.saveScanEditsClicked.connect(self._save_scan_edits)
+        self.tools.assignSegmentIndex.connect(self._assign_segment_index)
 
         #
         # Timers
@@ -92,18 +97,10 @@ class ScanViewport(QWidget):
         if scan_result is None:
             return
 
-        pen = QPen(QColor(255, 255, 0))
-        pen.setWidth(2)
-
         for detection_point in scan_result.detected_points.values():
             if detection_point.led_number not in self._detection_points_items:
-                new = QGraphicsEllipseItem(- 3, -3, 6, 6)
+                new = DetectionPointGraphicsItem(detection_point)
                 new.setPos(detection_point.x, detection_point.y)
-                new.setPen(pen)
-                new.setFlags(
-                    QGraphicsItem.GraphicsItemFlag.ItemIsMovable |
-                    QGraphicsItem.GraphicsItemFlag.ItemIsSelectable
-                )
                 self._detection_points_items[detection_point.led_number] = new
                 self.scene.addItem(new)
 
@@ -138,8 +135,17 @@ class ScanViewport(QWidget):
         for led_number, detection_point_item in self._detection_points_items.items():
             updated_detection_point = DetectionPoint(
                 led_number=led_number,
-                x=detection_point_item.x(),
-                y=detection_point_item.y()
+                x=int(detection_point_item.x()),
+                y=int(detection_point_item.y()),
+                assigned_segment_number=detection_point_item.detection_point.assigned_segment_number
             )
             result.detected_points[led_number] = updated_detection_point
         scan_api.set_scan_result(result)
+
+    def _assign_segment_index(self, index):
+        for led_number, detection_point_item in self._detection_points_items.items():
+            if not detection_point_item.isSelected():
+                continue
+
+            detection_point_item.detection_point.assigned_segment_number = index
+            detection_point_item.update()

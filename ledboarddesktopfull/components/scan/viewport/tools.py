@@ -1,5 +1,5 @@
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QSpinBox
 
 from pyside6helpers import icons
 from pyside6helpers.frame import make_h_line
@@ -11,6 +11,7 @@ class ScanViewportTools(QWidget):
     maskResetClicked = Signal()
     maskToggleVisible = Signal(bool)
     saveScanEditsClicked = Signal()
+    assignSegmentIndex = Signal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -37,8 +38,15 @@ class ScanViewportTools(QWidget):
         self.button_mask_reset.setIcon(icons.trash())
 
         self.button_save_scan_edits = QPushButton("Save edits")
-        self.button_save_scan_edits.setToolTip("Save moved detected points")
+        self.button_save_scan_edits.setToolTip("Save moved detected points, assigned segments")
         self.button_save_scan_edits.setIcon(icons.diskette())
+
+        self.spin_segment_index = QSpinBox()
+        self.spin_segment_index.setRange(-1, 4)
+        self.button_assign_segment_index = QPushButton("Assign segment")
+        self.button_assign_segment_index.setIcon(icons.equalizer())
+        self.button_assign_segment_index.setToolTip("Assigns segment index to selected detection points")
+        self.button_assign_segment_index.clicked.connect(self._assign_segment_index)
 
         #
         # Layout
@@ -46,10 +54,16 @@ class ScanViewportTools(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         layout.addWidget(self.button_fit_viewport)
+
         layout.addWidget(make_h_line())
         layout.addWidget(self.button_mask_edit)
         layout.addWidget(self.button_mask_reset)
         layout.addWidget(self.button_mask_toggle_visible)
+
+        layout.addWidget(make_h_line())
+        layout.addWidget(self.spin_segment_index)
+        layout.addWidget(self.button_assign_segment_index)
+
         layout.addWidget(make_h_line())
         layout.addWidget(self.button_save_scan_edits)
 
@@ -66,3 +80,6 @@ class ScanViewportTools(QWidget):
         checked = self.button_mask_toggle_visible.isChecked()
         self.button_mask_toggle_visible.setIcon(icons.vision() if checked else icons.vision_stroked())
         self.maskToggleVisible.emit(checked)
+
+    def _assign_segment_index(self):
+        self.assignSegmentIndex.emit(self.spin_segment_index.value())
