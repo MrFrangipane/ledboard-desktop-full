@@ -66,8 +66,8 @@ class ScanSideBar(QWidget):
 
         #
         # Export indexed led segments
-        self.spin_segment_division_count = SpinBox("Segment division count", minimum=1, maximum=100, value=25)  # FIXME 25 for Blitz (5x25 < 128)
-        self.spin_transmitter_index = SpinBox("Transmitter", minimum=1, maximum=8)
+        value = 64  # FIXME Blitz-specific (=128 x 0.5)
+        self.spin_segment_division_count = SpinBox("Segment division count", minimum=1, maximum=100, value=value)
         self.button_export_indexed_led_segments = QPushButton("Export indexed LED segment...")
         self.button_export_indexed_led_segments.setIcon(icons.upload())
         self.button_export_indexed_led_segments.clicked.connect(self._export_indexed_led_segment)
@@ -115,7 +115,6 @@ class ScanSideBar(QWidget):
         layout.addWidget(make_group(
             "Export",
             widgets=[
-                self.spin_transmitter_index,
                 self.spin_segment_division_count,
                 self.button_export_indexed_led_segments
             ]
@@ -245,13 +244,15 @@ class ScanSideBar(QWidget):
     #
     # Export
     def _export_indexed_led_segment(self):
-        # filename, _ = QFileDialog.getSaveFileName()
-        # if not filename:
-        #     return
-        filename = "segment.json"
-
-        scan_api.export_indexed_led_segment(
-            filename=filename,
-            transmitter=self.spin_transmitter_index.value(),
+        segment_to_universe_map = {
+            -1: None,
+            0: 0,
+            1: 0,
+            2: 1,
+            3: 1,
+            4: 2
+        }
+        scan_api.map_to_tree_and_send_to_board(
+            segment_to_universe_map=segment_to_universe_map,
             division_count=self.spin_segment_division_count.value()
         )
