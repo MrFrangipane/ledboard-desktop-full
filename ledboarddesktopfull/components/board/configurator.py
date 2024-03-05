@@ -1,9 +1,12 @@
+import logging
 from ipaddress import IPv4Address
 
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QSpinBox, QComboBox, QPushButton
 from pyside6helpers import icons
 
 from ledboardclientfull import BoardExecutionMode, PixelType, board_api
+
+_logger = logging.getLogger(__name__)
 
 
 class BoardConfiguratorWidget(QWidget):
