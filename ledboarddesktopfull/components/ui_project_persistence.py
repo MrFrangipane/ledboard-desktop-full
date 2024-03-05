@@ -48,25 +48,33 @@ class UiProjectPersistence(QObject):
         dialog = QFileDialog()
         filepath, _ = dialog.getOpenFileName()
         if filepath:
-            project_api.load(filepath)
-            self._update_widgets()
+            self._load(filepath)
 
-    @staticmethod
-    def save():
+    def save(self):
         dialog = QFileDialog()
         filepath, _ = dialog.getSaveFileName()
         if filepath:
-            project_api.save(filepath)
+            self._save(filepath)
 
-    @staticmethod
-    def save_as_working():
+    def save_as_working(self):
         _logger.info("Saving project working file")
-        project_api.save(os.path.expanduser("~/ledboard-working-project.json"))
+        self._save(os.path.expanduser("~/ledboard-working-project.json"))
 
     def load_from_working(self):
         _logger.info("Loading project working file")
-        project_api.load(os.path.expanduser("~/ledboard-working-project.json"))
+        self._load(os.path.expanduser("~/ledboard-working-project.json"))
+
+    def _load(self, filepath):
+        UiComponents().widgets.scan.stop_viewport_update_timer()
+        project_api.load(filepath)
         self._update_widgets()
+        UiComponents().widgets.scan.start_viewport_update_timer()
+
+    @staticmethod
+    def _save(filepath):
+        UiComponents().widgets.scan.stop_viewport_update_timer()
+        project_api.save(filepath)
+        UiComponents().widgets.scan.start_viewport_update_timer()
 
     @staticmethod
     def _update_widgets():

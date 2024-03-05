@@ -1,4 +1,4 @@
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Signal
 from PySide6.QtGui import QPen, QColor
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QGraphicsScene, QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsItem
 
@@ -13,6 +13,8 @@ from ledboarddesktopfull.python_extensions.graphics_image_plane import GraphicsI
 
 
 class ScanViewport(QWidget):
+    viewportUpdated = Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -22,12 +24,19 @@ class ScanViewport(QWidget):
         # Widgets
         self.view = GraphicsView()
         self.scene = QGraphicsScene()
+
         self.image_plane = GraphicsImagePlane()
+
         self.horizontal_line = QGraphicsRectItem()
         self.horizontal_line.setPen(QPen(QColor(255, 255, 0)))
 
+        self.detection_marker = QGraphicsEllipseItem()
+        self.detection_marker.setRect(-5, -5, 10, 10)
+        self.detection_marker.setPen(QPen(QColor(255, 0, 0)))
+
         self.scene.addItem(self.image_plane)
         self.scene.addItem(self.horizontal_line)
+        self.scene.addItem(self.detection_marker)
         self.view.setScene(self.scene)
 
         self.tools = ScanViewportTools()
@@ -64,22 +73,33 @@ class ScanViewport(QWidget):
         # Timers
         self._viewport_timer = QTimer(self)
         self._viewport_timer.timeout.connect(self._update_viewport)
+
+    def start_viewport_update_timer(self):
         self._viewport_timer.start(int(1000 / UiComponents().configuration.scan_viewport_framerate))
+
+    def stop_viewport_update_timer(self):
+        self._viewport_timer.stop()
 
     def _update_viewport(self):
         self.image_plane.setPixmap(scan_api.viewport_pixmap())
         self._make_scan_result_items()
+        x, y, v = scan_api.get_detection_coordinates()
+        self.detection_marker.setPos(x, y)
+        self.viewportUpdated.emit()
 
     def _make_scan_result_items(self):
         scan_result = scan_api.get_scan_result()
         if scan_result is None:
             return
 
+        pen = QPen(QColor(255, 255, 0))
+        pen.setWidth(2)
+
         for detection_point in scan_result.detected_points.values():
             if detection_point.led_number not in self._detection_points_items:
                 new = QGraphicsEllipseItem(- 3, -3, 6, 6)
                 new.setPos(detection_point.x, detection_point.y)
-                new.setPen(QPen(QColor(200, 128, 255)))
+                new.setPen(pen)
                 new.setFlags(
                     QGraphicsItem.GraphicsItemFlag.ItemIsMovable |
                     QGraphicsItem.GraphicsItemFlag.ItemIsSelectable

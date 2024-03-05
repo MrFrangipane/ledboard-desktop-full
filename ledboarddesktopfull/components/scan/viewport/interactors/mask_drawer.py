@@ -15,12 +15,16 @@ class MaskDrawer(AbstractGraphicsViewInteractor):
         self._temp_disable = False
         self._is_drawing = False
 
-        pen = QPen(QColor(255, 0, 128))
+        color = QColor(128, 128, 128)
+
+        pen = QPen(color)
         pen.setWidth(2)
         pen.setCapStyle(Qt.RoundCap)
         pen.setJoinStyle(Qt.RoundJoin)
 
-        brush = QBrush(QColor(255, 0, 128, 64))
+        color.setAlpha(64)
+        brush = QBrush(color)
+        # brush.setStyle(Qt.BDiagPattern)
 
         self._polygon = QPolygonF()
         self._polygon_item = self._view.scene().addPolygon(self._polygon, pen, brush)

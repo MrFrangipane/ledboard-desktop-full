@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QComboBox, QPushButton, QProgressBar, QCheckBox, QFileDialog
 
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QComboBox, QPushButton, QProgressBar, QCheckBox, QLabel
 from pyside6helpers import combo, icons
 from pyside6helpers.group import make_group
 from pyside6helpers.hourglass import hourglass_wrapper
@@ -29,7 +29,7 @@ class ScanSideBar(QWidget):
         self.button_refresh_video_inputs.clicked.connect(hourglass_wrapper(self.refresh_video_inputs))
 
         #
-        # Image Processing
+        # Detection Settings
         self.checkbox_viewport_brightest_pixel = QCheckBox("Show brightest pixel")
         self.checkbox_viewport_brightest_pixel.stateChanged.connect(self.brightest_pixel_changed)
 
@@ -39,6 +39,12 @@ class ScanSideBar(QWidget):
         self.slider_blur_radius = Slider(
             "Blur radius", minimum=0, maximum=8, on_value_changed=self.blur_radius_changed
         )
+        self.spin_value_threshold = SpinBox(
+            "Value threshold", maximum=255, on_value_changed=self._apply, value=220
+        )
+        self.spin_time_interval_ms = SpinBox(
+            "Time interval (ms)", maximum=2000, on_value_changed=self._apply, value=200
+        )
 
         #
         # LEDs
@@ -46,6 +52,10 @@ class ScanSideBar(QWidget):
         self.spin_led_last = SpinBox("last", on_value_changed=self._apply)
         self.button_led_range_from_illumination = QPushButton("From illumination range")
         self.button_led_range_from_illumination.clicked.connect(self._led_range_from_illumination)
+
+        #
+        # Detection Info
+        self.label_detection_info = QLabel()
 
         #
         # Execution
@@ -79,7 +89,9 @@ class ScanSideBar(QWidget):
             [
                 self.checkbox_viewport_brightest_pixel,
                 self.checkbox_viewport_blur,
-                self.slider_blur_radius
+                self.slider_blur_radius,
+                self.spin_value_threshold,
+                self.spin_time_interval_ms
             ]
         ))
         layout.addWidget(make_group(
@@ -90,8 +102,12 @@ class ScanSideBar(QWidget):
                 self.button_led_range_from_illumination
             ]
         ))
-        layout.addWidget(self.button_start)
+        layout.addWidget(make_group(
+            "Detection info",
+            widgets=[self.label_detection_info]
+        ))
         layout.addWidget(self.progress)
+        layout.addWidget(self.button_start)
 
         layout.addWidget(QWidget())
         layout.setStretch(layout.count() - 1, 100)
@@ -109,6 +125,14 @@ class ScanSideBar(QWidget):
 
     #
     # Widgets
+    def refresh_detection_infos(self):
+        x, y, value = scan_api.get_detection_coordinates()
+        self.label_detection_info.setText("\n".join([
+            f"x: {x}",
+            f"y: {y}",
+            f"value: {value}"
+        ]))
+
     def refresh_video_inputs(self):
         combo.update(self.combo_video_inputs, scan_api.get_capture_devices_names())
 
@@ -158,6 +182,8 @@ class ScanSideBar(QWidget):
         self.checkbox_viewport_blur.setChecked(scan_settings.viewport_blur)
         self.checkbox_viewport_brightest_pixel.setChecked(scan_settings.viewport_brightest_pixel)
         self.slider_blur_radius.setValue(scan_settings.blur_radius)
+        self.spin_value_threshold.setValue(scan_settings.detection_value_threshold)
+        self.spin_time_interval_ms.setValue(scan_settings.detection_time_interval_ms)
 
         board_settings = board_api.get_selected_board()
         self.spin_led_first.setRange(0, board_settings.led_per_transmitter * 8)
@@ -173,8 +199,12 @@ class ScanSideBar(QWidget):
             return
 
         settings = scan_api.get_settings()
+
         settings.led_first = self.spin_led_first.value()
         settings.led_last = self.spin_led_last.value()
+        settings.detection_value_threshold = self.spin_value_threshold.value()
+        settings.detection_time_interval_ms =self.spin_time_interval_ms.value()
+
         scan_api.set_settings(settings)
 
     #

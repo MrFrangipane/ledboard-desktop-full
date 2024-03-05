@@ -15,8 +15,6 @@ class ScanViewportTools(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._is_mask_visible = True
-
         #
         # Widgets
         self.button_fit_viewport = QPushButton("Fit view")
@@ -28,9 +26,11 @@ class ScanViewportTools(QWidget):
         self.button_mask_edit.setIcon(icons.screenshot())
         self.button_mask_edit.setCheckable(True)
 
-        self.button_mask_toggle_visible = QPushButton("Hide mask")
-        self.button_mask_toggle_visible.setIcon(icons.vision_stroked())
-        self.button_mask_toggle_visible.clicked.connect(self._mask_toggle_visible)
+        self.button_mask_toggle_visible = QPushButton("Mask visibility")
+        self.button_mask_toggle_visible.setIcon(icons.vision())
+        self.button_mask_toggle_visible.setCheckable(True)
+        self.button_mask_toggle_visible.setChecked(True)
+        self.button_mask_toggle_visible.toggled.connect(self._mask_toggle_visible)
 
         self.button_mask_reset = QPushButton("Reset mask")
         self.button_mask_reset.setToolTip("Masking")
@@ -48,8 +48,8 @@ class ScanViewportTools(QWidget):
         layout.addWidget(self.button_fit_viewport)
         layout.addWidget(make_h_line())
         layout.addWidget(self.button_mask_edit)
-        layout.addWidget(self.button_mask_toggle_visible)
         layout.addWidget(self.button_mask_reset)
+        layout.addWidget(self.button_mask_toggle_visible)
         layout.addWidget(make_h_line())
         layout.addWidget(self.button_save_scan_edits)
 
@@ -63,13 +63,6 @@ class ScanViewportTools(QWidget):
         self.button_save_scan_edits.clicked.connect(self.saveScanEditsClicked)
 
     def _mask_toggle_visible(self):
-        if self._is_mask_visible:
-            self._is_mask_visible = False
-            self.button_mask_toggle_visible.setIcon(icons.vision())
-            self.button_mask_toggle_visible.setText("Show mask")
-        else:
-            self._is_mask_visible = True
-            self.button_mask_toggle_visible.setIcon(icons.vision_stroked())
-            self.button_mask_toggle_visible.setText("Hide mask")
-
-        self.maskToggleVisible.emit(self._is_mask_visible)
+        checked = self.button_mask_toggle_visible.isChecked()
+        self.button_mask_toggle_visible.setIcon(icons.vision() if checked else icons.vision_stroked())
+        self.maskToggleVisible.emit(checked)
