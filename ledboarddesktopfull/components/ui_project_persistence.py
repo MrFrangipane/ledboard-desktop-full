@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QMenu, QFileDialog
 
 from pyside6helpers import icons
 
-from ledboardclientfull import project_api
+from ledboardclientfull import project_api ,board_api
 
 from ledboarddesktopfull.core.ui_components import UiComponents
 
@@ -66,6 +66,7 @@ class UiProjectPersistence(QObject):
 
     def _load(self, filepath):
         UiComponents().widgets.scan.stop_viewport_update_timer()
+        board_api.available_boards()  # FIXME hack to prevent semaphore windows
         project_api.load(filepath)
         self._update_widgets()
         UiComponents().widgets.scan.start_viewport_update_timer()

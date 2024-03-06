@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 from pyside6helpers import css, icons
 from pyside6helpers.logger import dock_logger_to_main_window
 
-from ledboardclientfull import init_ledboard_client
+from ledboardclientfull import init_ledboard_client, board_api
 
 from ledboarddesktopfull.components.board.configurator import BoardConfiguratorWidget
 from ledboarddesktopfull.components.board.illuminator import BoardIlluminatorWidget
@@ -59,6 +59,8 @@ class Launcher(QObject):
 
         if _save_on_quit:
             self._application.aboutToQuit.connect(UiC().project_persistence.save_as_working)
+
+        self._application.aboutToQuit.connect(board_api.close_serial_port)  # FIXME shutdown_ledboard_client() ?
 
         self._init_menus()
 
