@@ -1,6 +1,6 @@
 # LED Board Desktop (full)
 
-**/!\ THIS IS ALPHA SOFTWARE /!\** 
+**/!\ THIS IS ALPHA SOFTWARE** 
 
 Full version of the desktop app for LED Boards
 
@@ -8,7 +8,7 @@ Full version of the desktop app for LED Boards
 
 Related projects
 
-- [LED Board Client (full)](https://github.com/MrFrangipane/ledboard-client-full)
+- [LED Board Client (full)](https://github.com/MrFrangipane/led-client-full)
 - [Python Arduino Serial](https://github.com/MrFrangipane/python-arduino-serial)
 - [LED Board - PCB](https://github.com/MrFrangipane/ledboard-pcb)
 - [LED Board - Firmware full](https://github.com/MrFrangipane/ledboard-firmware-full)
