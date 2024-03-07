@@ -24,13 +24,16 @@ class MainWindow(QMainWindow):
         self.statusBar().addPermanentWidget(logo_label)
 
         # FIXME could be better
+        self._already_shown_once = False
         self.timer_on_shown = QTimer()
-        self.timer_on_shown.timeout.connect(self._on_shown)
+        self.timer_on_shown.timeout.connect(self._on_first_shown)
 
     def showEvent(self, event):
         QMainWindow.showEvent(self, event)
-        self.timer_on_shown.start(0)
+        if not self._already_shown_once:
+            self._already_shown_once = True
+            self.timer_on_shown.start(0)
 
-    def _on_shown(self):
+    def _on_first_shown(self):
         self.timer_on_shown.stop()
         UiComponents().project_persistence.load_from_working()
